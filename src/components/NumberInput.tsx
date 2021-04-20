@@ -1,13 +1,20 @@
-import React from 'react'
+import React from "react";
 
 type Props = {
-  value?: number
-  onChangeValue?: (v: number) => void
-  label?: string
-  disabled?: boolean
-}
+  value?: number;
+  onChangeValue?: (v: number) => void;
+  label?: string;
+  disabled?: boolean;
+  note?: string;
+};
 
-export default function NumberInput({ label, value, onChangeValue, disabled }: Props) {
+export default function NumberInput({
+  label,
+  value,
+  onChangeValue,
+  disabled,
+  note,
+}: Props) {
   return (
     <div className="number-input">
       <label>{label}</label>
@@ -15,18 +22,19 @@ export default function NumberInput({ label, value, onChangeValue, disabled }: P
         type="number"
         value={value}
         onChange={(e) => {
-          if (!onChangeValue) return
-          const { value } = e.target
+          if (!onChangeValue) return;
+          const { value } = e.target;
           switch (value) {
-            case '':
-              onChangeValue(0)
-              break
+            case "":
+              onChangeValue(0);
+              break;
             default:
-              onChangeValue(parseInt(value))
+              onChangeValue(parseInt(value));
           }
         }}
         disabled={disabled}
       />
+      {note && <label className="note">{note}</label>}
     </div>
-  )
+  );
 }

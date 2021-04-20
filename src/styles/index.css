@@ -1,5 +1,5 @@
-@import 'reset.css';
-@import 'https://fonts.googleapis.com/css?family=Inter';
+@import "reset.css";
+@import "https://fonts.googleapis.com/css?family=Inter";
 
 body {
   font-family: Inter;
@@ -8,12 +8,19 @@ body {
   padding: 16px;
 }
 
+.main {
+  display: flex;
+  flex-flow: row wrap;
+}
+
 .box {
   padding: 16px;
   border-radius: 8px;
   background-color: #fff;
   box-shadow: 2px 2px rgba(0, 0, 0, 0.1);
   margin-bottom: 16px;
+  margin-right: 16px;
+  flex-grow: 0.5;
 }
 
 .number-input,
@@ -40,6 +47,13 @@ body {
 .number-input input:disabled,
 .dropdown select:disabled {
   background-color: #f0f0f0;
+}
+
+.number-input label.note,
+.dropdown label.note {
+  margin-top: 2px;
+  font-size: 12px;
+  font-style: oblique;
 }
 
 .box h1 {
