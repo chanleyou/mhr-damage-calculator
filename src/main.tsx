@@ -5,6 +5,7 @@ import {
   sharpnessRawMultiplier,
   attackBoost,
   weaknessExploit,
+  demondrug,
 } from './calculator'
 
 export default function Main() {
@@ -21,6 +22,10 @@ export default function Main() {
   const [powercharm, setPowercharm] = useState(true)
   const [powertalon, setPowertalon] = useState(true)
 
+  const [mightSeed, setMightSeed] = useState(false)
+  const [demonPowder, setDemonPowder] = useState(false)
+  const [dd, setDd] = useState<keyof typeof demondrug>('None')
+
   const [miscAb, setMiscAb] = useState(0)
   const [miscAffinity, setMiscAffinity] = useState(0)
 
@@ -34,9 +39,15 @@ export default function Main() {
 
   const rawFlat = useMemo(() => {
     return (
-      attackBoost[ab][1] + miscAb + (powercharm ? 5 : 0) + (powertalon ? 10 : 0)
+      attackBoost[ab][1] +
+      miscAb +
+      (powercharm ? 6 : 0) +
+      (powertalon ? 9 : 0) +
+      (mightSeed ? 10 : 0) +
+      (demonPowder ? 10 : 0) +
+      demondrug[dd]
     )
-  }, [ab, miscAb, powercharm, powertalon])
+  }, [ab, miscAb, powercharm, powertalon, mightSeed, demonPowder, dd])
 
   const affinity = useMemo(() => {
     const wexBonus = hitzoneRaw >= 45 ? weaknessExploit[wex] : 0
@@ -131,9 +142,25 @@ export default function Main() {
           value={powertalon}
           onChangeValue={setPowertalon}
         />
+        <Checkbox
+          label="Might Seed"
+          value={mightSeed}
+          onChangeValue={setMightSeed}
+        />
+        <Checkbox
+          label="Demon Powder"
+          value={demonPowder}
+          onChangeValue={setDemonPowder}
+        />
         <div style={{ height: '8px' }} />
+        <Dropdown
+          options={['None', 'Demondrug', 'Mega Demondrug']}
+          label="Demondrug"
+          value={dd}
+          onChangeValue={(s: string) => setDd(s as keyof typeof demondrug)}
+        />
         <NumberInput
-          label="Attack Boost"
+          label="Attack"
           value={miscAb}
           onChangeValue={setMiscAb}
           note="e.g. Petalace"
@@ -142,7 +169,7 @@ export default function Main() {
           label="Affinity"
           value={miscAffinity}
           onChangeValue={setMiscAffinity}
-          note="e.g. Cutterfly, Latent Power, etc."
+          note="e.g. Latent Power, etc."
         />
       </Box>
       <Box header="Monster">

@@ -72,3 +72,9 @@ export const criticalBoost = [1.25, 1.3, 1.35, 1.4] as const
 export const weaknessExploit = [0, 15, 30, 50] as const
 
 export const criticalElement = [1, 1.05, 1.1, 1.15] as const
+
+export const demondrug = {
+  None: 0,
+  Demondrug: 5,
+  'Mega Demondrug': 7,
+} as const
