@@ -6,6 +6,7 @@ import {
   attackBoost,
   weaknessExploit,
   demondrug,
+  elementalAttack,
 } from './calculator'
 
 export default function Main() {
@@ -14,6 +15,7 @@ export default function Main() {
   const weaponAffinity = useState(0)
 
   const [ab, setAb] = useState(0)
+  const [eleAtk, setEleAtk] = useState(0)
   const [criticalEye, setCriticalEye] = useState(0)
   const [cb, setCb] = useState(0)
   const [criticalElement, setCriticalElement] = useState(0)
@@ -34,8 +36,8 @@ export default function Main() {
   const [hitzoneEle, setHitzoneEle] = useState(30)
 
   const rawPerc = useMemo(() => {
-    return attackBoost[ab][0]
-  }, [ab])
+    return attackBoost[ab][0] + miscAb
+  }, [ab, miscAb])
 
   const rawFlat = useMemo(() => {
     return (
@@ -48,6 +50,14 @@ export default function Main() {
       demondrug[dd]
     )
   }, [ab, miscAb, powercharm, powertalon, mightSeed, demonPowder, dd])
+
+  const elePerc = useMemo(() => {
+    return elementalAttack[eleAtk][0]
+  }, [eleAtk])
+
+  const eleFlat = useMemo(() => {
+    return elementalAttack[eleAtk][1]
+  }, [eleAtk])
 
   const affinity = useMemo(() => {
     const wexBonus = hitzoneRaw >= 45 ? weaknessExploit[wex] : 0
@@ -64,6 +74,8 @@ export default function Main() {
     elemental[0],
     rawPerc,
     rawFlat,
+    elePerc,
+    eleFlat,
     affinity,
     cb,
     criticalElement,
@@ -104,6 +116,12 @@ export default function Main() {
           label="Attack Boost"
           value={ab.toString()}
           onChangeValue={(v) => setAb(parseInt(v))}
+        />
+        <Dropdown
+          options={[0, 1, 2, 3, 4, 5]}
+          label="Element Attack"
+          value={eleAtk.toString()}
+          onChangeValue={(v) => setEleAtk(parseInt(v))}
         />
         <Dropdown
           options={[0, 1, 2, 3, 4, 5, 6, 7]}

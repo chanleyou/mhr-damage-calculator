@@ -3,6 +3,8 @@ export function calculateDamage(
   weaponEle: number,
   rawPercentageBonus: number,
   rawFlatBonus: number,
+  elePercentageBonus: number,
+  eleFlatBonus: number,
   affinityPercentage: number,
   critBoostLevel: number,
   critEleLevel: number,
@@ -18,7 +20,9 @@ export function calculateDamage(
     (motionValue / 100)
 
   const ele =
-    weaponEle * sharpnessElementalMultiplier[sharpness] * (hitZoneEle / 100)
+    (weaponEle * ((100 + elePercentageBonus) / 100) + eleFlatBonus) *
+    sharpnessElementalMultiplier[sharpness] *
+    (hitZoneEle / 100)
 
   const nonCrit = raw + ele
 
@@ -48,6 +52,15 @@ export const attackBoost = [
   [8, 9],
   [10, 10],
 ] as const
+
+export const elementalAttack = [
+  [0, 0],
+  [0, 2],
+  [0, 3],
+  [5, 4],
+  [10, 4],
+  [20, 4],
+]
 
 export const sharpnessRawMultiplier = {
   White: 1.32,
