@@ -1,46 +1,52 @@
-import React, { useMemo, useState } from "react";
-import { NumberInput, Dropdown, Box } from "./components";
+import React, { useMemo, useState } from 'react'
+import { NumberInput, Dropdown, Box, Checkbox } from './components'
 import {
   calculateDamage,
   sharpnessRawMultiplier,
   attackBoost,
   weaknessExploit,
-} from "./calculator";
+} from './calculator'
 
 export default function Main() {
-  const raw = useState(200);
-  const elemental = useState(0);
-  const weaponAffinity = useState(0);
+  const raw = useState(200)
+  const elemental = useState(0)
+  const weaponAffinity = useState(0)
 
-  const [ab, setAb] = useState(0);
-  const [criticalEye, setCriticalEye] = useState(0);
-  const [cb, setCb] = useState(0);
-  const [criticalElement, setCriticalElement] = useState(0);
-  const [wex, setWex] = useState(0);
+  const [ab, setAb] = useState(0)
+  const [criticalEye, setCriticalEye] = useState(0)
+  const [cb, setCb] = useState(0)
+  const [criticalElement, setCriticalElement] = useState(0)
+  const [wex, setWex] = useState(0)
 
-  const [miscAb, setMiscAb] = useState(0);
-  const [miscAffinity, setMiscAffinity] = useState(0);
+  const [powercharm, setPowercharm] = useState(true)
+  const [powertalon, setPowertalon] = useState(true)
 
-  const [hitzoneRaw, setHitzoneRaw] = useState(100);
-  const [hitzoneEle, setHitzoneEle] = useState(30);
+  const [miscAb, setMiscAb] = useState(0)
+  const [miscAffinity, setMiscAffinity] = useState(0)
+
+  const [motionValue, setMotionValue] = useState(40)
+  const [hitzoneRaw, setHitzoneRaw] = useState(100)
+  const [hitzoneEle, setHitzoneEle] = useState(30)
 
   const rawPerc = useMemo(() => {
-    return attackBoost[ab][0];
-  }, [ab]);
+    return attackBoost[ab][0]
+  }, [ab])
 
   const rawFlat = useMemo(() => {
-    return attackBoost[ab][1] + miscAb;
-  }, [ab, miscAb]);
+    return (
+      attackBoost[ab][1] + miscAb + (powercharm ? 5 : 0) + (powertalon ? 10 : 0)
+    )
+  }, [ab, miscAb, powercharm, powertalon])
 
   const affinity = useMemo(() => {
-    const wexBonus = hitzoneRaw >= 45 ? weaknessExploit[wex] : 0;
-    const criticalEyeBonus = criticalEye * 5;
-    return weaponAffinity[0] + wexBonus + criticalEyeBonus + miscAffinity;
-  }, [weaponAffinity, criticalEye, wex, hitzoneRaw, miscAffinity]);
+    const wexBonus = hitzoneRaw >= 45 ? weaknessExploit[wex] : 0
+    const criticalEyeBonus = criticalEye * 5
+    return weaponAffinity[0] + wexBonus + criticalEyeBonus + miscAffinity
+  }, [weaponAffinity, criticalEye, wex, hitzoneRaw, miscAffinity])
 
   const [sharpness, setSharpness] = useState<
     keyof typeof sharpnessRawMultiplier
-  >("White");
+  >('White')
 
   const { average, nonCrit, crit } = calculateDamage(
     raw[0],
@@ -51,9 +57,10 @@ export default function Main() {
     cb,
     criticalElement,
     sharpness,
+    motionValue,
     hitzoneRaw,
     hitzoneEle
-  );
+  )
 
   return (
     <div className="main">
@@ -105,7 +112,7 @@ export default function Main() {
           label="Critical Boost"
           value={cb.toString()}
           onChangeValue={(v) => setCb(parseInt(v))}
-        />{" "}
+        />{' '}
         <Dropdown
           options={[0, 1, 2, 3]}
           label="Critical Element"
@@ -114,10 +121,22 @@ export default function Main() {
         />
       </Box>
       <Box header="Miscellaneous">
+        <Checkbox
+          label="Powercharm"
+          value={powercharm}
+          onChangeValue={setPowercharm}
+        />
+        <Checkbox
+          label="Powertalon"
+          value={powertalon}
+          onChangeValue={setPowertalon}
+        />
+        <div style={{ height: '8px' }} />
         <NumberInput
           label="Attack Boost"
           value={miscAb}
           onChangeValue={setMiscAb}
+          note="e.g. Petalace"
         />
         <NumberInput
           label="Affinity"
@@ -126,14 +145,19 @@ export default function Main() {
           note="e.g. Cutterfly, Latent Power, etc."
         />
       </Box>
-      <Box header="Hitzone">
+      <Box header="Monster">
         <NumberInput
-          label="Raw"
+          label="Motion Value"
+          value={motionValue}
+          onChangeValue={setMotionValue}
+        />
+        <NumberInput
+          label="Hitzone (Raw)"
           value={hitzoneRaw}
           onChangeValue={setHitzoneRaw}
         />
         <NumberInput
-          label="Elemental"
+          label="Hitzone (Elemental)"
           value={hitzoneEle}
           onChangeValue={setHitzoneEle}
         />
@@ -151,5 +175,5 @@ export default function Main() {
         <div>Crit: {parseFloat(crit.toFixed(2))}</div>
       </Box>
     </div>
-  );
+  )
 }

@@ -1,13 +1,5 @@
 import React from "react";
 
-// interface Props
-//   extends React.DetailedHTMLProps<
-//     React.HTMLAttributes<HTMLDivElement>,
-//     HTMLDivElement
-//   > {
-//   header?: string;
-// }
-
 type Props = {
   children?: React.ReactNode;
   header?: string;

@@ -1,5 +1,5 @@
-@import "reset.css";
-@import "https://fonts.googleapis.com/css?family=Inter";
+@import 'reset.css';
+@import 'https://fonts.googleapis.com/css?family=Inter';
 
 body {
   font-family: Inter;
@@ -31,7 +31,8 @@ body {
 }
 
 .number-input label,
-.dropdown label {
+.dropdown label,
+.checkbox label {
   font-size: 12px;
   padding-left: 4px;
 }
@@ -58,4 +59,8 @@ body {
 
 .box h1 {
   margin-bottom: 8px;
+}
+
+.checkbox {
+  padding: 4px;
 }
