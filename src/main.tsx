@@ -3,23 +3,29 @@ import { NumberInput, Dropdown, Box, Checkbox } from './components'
 import {
   calculateDamage,
   sharpnessRawMultiplier,
-  attackBoost,
-  weaknessExploit,
+  attackBoostSkill,
+  weaknessExploitSkill,
   demondrug,
-  elementalAttack,
+  elementalAttackSkill,
+  Sharpness,
+  bludgeonerSkill,
 } from './calculator'
 
 export default function Main() {
-  const raw = useState(200)
-  const elemental = useState(0)
-  const weaponAffinity = useState(0)
+  // weapon
+  const [weaponRaw, setWeaponRaw] = useState(200)
+  const [weaponElemental, setWeaponElemental] = useState(0)
+  const [weaponAffinity, setWeaponAffinity] = useState(0)
+  const [sharpness, setSharpness] = useState<Sharpness>('white')
 
-  const [ab, setAb] = useState(0)
-  const [eleAtk, setEleAtk] = useState(0)
+  // skills
+  const [attackBoost, setAttackBoost] = useState(0)
+  const [elementalAttack, setElementalAttack] = useState(0)
   const [criticalEye, setCriticalEye] = useState(0)
-  const [cb, setCb] = useState(0)
+  const [criticalBoost, setCriticalBoost] = useState(0)
   const [criticalElement, setCriticalElement] = useState(0)
   const [wex, setWex] = useState(0)
+  const [bludgeoner, setBludgeoner] = useState(0)
 
   const [powercharm, setPowercharm] = useState(true)
   const [powertalon, setPowertalon] = useState(true)
@@ -36,48 +42,49 @@ export default function Main() {
   const [hitzoneEle, setHitzoneEle] = useState(30)
 
   const rawPerc = useMemo(() => {
-    return attackBoost[ab][0] + miscAb
-  }, [ab, miscAb])
+    return (
+      attackBoostSkill[attackBoost][0] +
+      (bludgeonerSkill[bludgeoner][0].includes(sharpness)
+        ? bludgeonerSkill[bludgeoner][1]
+        : 0)
+    )
+  }, [attackBoost, bludgeoner, sharpness])
 
   const rawFlat = useMemo(() => {
     return (
-      attackBoost[ab][1] +
-      miscAb +
+      attackBoostSkill[attackBoost][1] +
       (powercharm ? 6 : 0) +
       (powertalon ? 9 : 0) +
       (mightSeed ? 10 : 0) +
       (demonPowder ? 10 : 0) +
-      demondrug[dd]
+      demondrug[dd] +
+      miscAb
     )
-  }, [ab, miscAb, powercharm, powertalon, mightSeed, demonPowder, dd])
+  }, [attackBoost, miscAb, powercharm, powertalon, mightSeed, demonPowder, dd])
 
   const elePerc = useMemo(() => {
-    return elementalAttack[eleAtk][0]
-  }, [eleAtk])
+    return elementalAttackSkill[elementalAttack][0]
+  }, [elementalAttack])
 
   const eleFlat = useMemo(() => {
-    return elementalAttack[eleAtk][1]
-  }, [eleAtk])
+    return elementalAttackSkill[elementalAttack][1]
+  }, [elementalAttack])
 
   const affinity = useMemo(() => {
-    const wexBonus = hitzoneRaw >= 45 ? weaknessExploit[wex] : 0
+    const wexBonus = hitzoneRaw >= 45 ? weaknessExploitSkill[wex] : 0
     const criticalEyeBonus = criticalEye * 5
-    return weaponAffinity[0] + wexBonus + criticalEyeBonus + miscAffinity
+    return weaponAffinity + wexBonus + criticalEyeBonus + miscAffinity
   }, [weaponAffinity, criticalEye, wex, hitzoneRaw, miscAffinity])
 
-  const [sharpness, setSharpness] = useState<
-    keyof typeof sharpnessRawMultiplier
-  >('White')
-
   const { average, nonCrit, crit } = calculateDamage(
-    raw[0],
-    elemental[0],
+    weaponRaw,
+    weaponElemental,
     rawPerc,
     rawFlat,
     elePerc,
     eleFlat,
     affinity,
-    cb,
+    criticalBoost,
     criticalElement,
     sharpness,
     motionValue,
@@ -89,16 +96,21 @@ export default function Main() {
     <div className="main">
       <Box header="Weapon">
         <div>
-          {Object.entries({ raw, elemental, weaponAffinity }).map(
-            ([key, [v, setV]]) => (
-              <NumberInput
-                key={key}
-                label={key}
-                value={v}
-                onChangeValue={setV}
-              />
-            )
-          )}
+          <NumberInput
+            label="Raw"
+            value={weaponRaw}
+            onChangeValue={setWeaponRaw}
+          />
+          <NumberInput
+            label="Element"
+            value={weaponElemental}
+            onChangeValue={setWeaponElemental}
+          />
+          <NumberInput
+            label="Affinity (%)"
+            value={weaponAffinity}
+            onChangeValue={setWeaponAffinity}
+          />
         </div>
         <Dropdown
           options={Object.keys(sharpnessRawMultiplier)}
@@ -114,14 +126,14 @@ export default function Main() {
         <Dropdown
           options={[0, 1, 2, 3, 4, 5, 6, 7]}
           label="Attack Boost"
-          value={ab.toString()}
-          onChangeValue={(v) => setAb(parseInt(v))}
+          value={attackBoost.toString()}
+          onChangeValue={(v) => setAttackBoost(parseInt(v))}
         />
         <Dropdown
           options={[0, 1, 2, 3, 4, 5]}
           label="Element Attack"
-          value={eleAtk.toString()}
-          onChangeValue={(v) => setEleAtk(parseInt(v))}
+          value={elementalAttack.toString()}
+          onChangeValue={(v) => setElementalAttack(parseInt(v))}
         />
         <Dropdown
           options={[0, 1, 2, 3, 4, 5, 6, 7]}
@@ -138,9 +150,16 @@ export default function Main() {
         />
         <Dropdown
           options={[0, 1, 2, 3]}
+          label="Bludgeoner"
+          value={bludgeoner.toString()}
+          onChangeValue={(v) => setBludgeoner(parseInt(v))}
+          note="Activates at yellow/yellow/green sharpness"
+        />
+        <Dropdown
+          options={[0, 1, 2, 3]}
           label="Critical Boost"
-          value={cb.toString()}
-          onChangeValue={(v) => setCb(parseInt(v))}
+          value={criticalBoost.toString()}
+          onChangeValue={(v) => setCriticalBoost(parseInt(v))}
         />{' '}
         <Dropdown
           options={[0, 1, 2, 3]}

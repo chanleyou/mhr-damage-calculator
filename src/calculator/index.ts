@@ -26,23 +26,31 @@ export function calculateDamage(
 
   const nonCrit = raw + ele
 
-  const crit =
-    raw * criticalBoost[critBoostLevel] + ele * criticalElement[critEleLevel]
+  const isPositiveCrit = affinityPercentage >= 0
 
-  const weightedCrit = crit * (affinityPercentage / 100)
-  const weightedNonCrit = (nonCrit * (100 - affinityPercentage)) / 100
+  const positiveCrit =
+    raw * criticalBoostSkill[critBoostLevel] +
+    ele * criticalElementSkill[critEleLevel]
+
+  const negativeCrit = raw * 0.75 + ele
+
+  const weightedCrit = isPositiveCrit
+    ? positiveCrit * (affinityPercentage / 100)
+    : negativeCrit * (Math.abs(affinityPercentage) / 100)
+
+  const weightedNonCrit = (nonCrit * (100 - Math.abs(affinityPercentage))) / 100
 
   const average = weightedCrit + weightedNonCrit
 
   return {
-    crit,
+    crit: isPositiveCrit ? positiveCrit : negativeCrit,
     nonCrit,
     average,
   }
 }
 
 /** aB[rank] = [percentage, flat] */
-export const attackBoost = [
+export const attackBoostSkill = [
   [0, 0],
   [0, 3],
   [0, 6],
@@ -53,7 +61,7 @@ export const attackBoost = [
   [10, 10],
 ] as const
 
-export const elementalAttack = [
+export const elementalAttackSkill = [
   [0, 0],
   [0, 2],
   [0, 3],
@@ -62,32 +70,41 @@ export const elementalAttack = [
   [20, 4],
 ]
 
+export type Sharpness = 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'white'
+
 export const sharpnessRawMultiplier = {
-  White: 1.32,
-  Blue: 1.2,
-  Green: 1.05,
-  Yellow: 1,
-  Orange: 0.75,
-  Red: 0.5,
+  white: 1.32,
+  blue: 1.2,
+  green: 1.05,
+  yellow: 1,
+  orange: 0.75,
+  red: 0.5,
 } as const
 
-export const sharpnessElementalMultiplier = {
-  White: 1.15,
-  Blue: 1.0625,
-  Green: 1,
-  Yellow: 0.75,
-  Orange: 0.5,
-  Red: 0.25,
+export const sharpnessElementalMultiplier: { [K in Sharpness]: number } = {
+  white: 1.15,
+  blue: 1.0625,
+  green: 1,
+  yellow: 0.75,
+  orange: 0.5,
+  red: 0.25,
 } as const
 
-export const criticalBoost = [1.25, 1.3, 1.35, 1.4] as const
+export const criticalBoostSkill = [1.25, 1.3, 1.35, 1.4] as const
 
-export const weaknessExploit = [0, 15, 30, 50] as const
+export const weaknessExploitSkill = [0, 15, 30, 50] as const
 
-export const criticalElement = [1, 1.05, 1.1, 1.15] as const
+export const criticalElementSkill = [1, 1.05, 1.1, 1.15] as const
 
 export const demondrug = {
   None: 0,
   Demondrug: 5,
   'Mega Demondrug': 7,
 } as const
+
+export const bludgeonerSkill: [Sharpness[], number][] = [
+  [[], 0],
+  [['yellow'], 5],
+  [['yellow'], 10],
+  [['yellow', 'green'], 10],
+]
