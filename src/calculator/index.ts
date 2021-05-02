@@ -27,7 +27,7 @@ export function calculateDamage(
   const nonCrit = raw + ele
 
   const isPositiveCrit = affinityPercentage >= 0
-  const effectiveAffinity = Math.max(Math.abs(affinityPercentage), 100)
+  const effectiveAffinity = Math.min(Math.abs(affinityPercentage), 100)
 
   const positiveCrit =
     raw * criticalBoostSkill[critBoostLevel] +
