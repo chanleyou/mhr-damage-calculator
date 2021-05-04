@@ -1,6 +1,7 @@
 ### Todo
 
-- Elemental damage caps(?)
+- Dulling Strike, Brutal Strike
+- Elemental damage caps(???)
 - Percentage boosts (e.g. Anti-Aquatic Species, etc)
 - Double-check damage calcs
 - Tests using numbers vs in-game values
