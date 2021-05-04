@@ -43,6 +43,8 @@ export default function Main() {
   const [motionValue, setMotionValue] = useState(40)
   const [hitzoneRaw, setHitzoneRaw] = useState(100)
   const [hitzoneEle, setHitzoneEle] = useState(30)
+  const [rawModifier, setRawModifier] = useState(0)
+  const [eleModifier, setEleModifier] = useState(0)
 
   const rawPerc = useMemo(() => {
     return (
@@ -73,11 +75,11 @@ export default function Main() {
     return elementalAttackSkill[elementalAttack][1]
   }, [elementalAttack])
 
-  const effectiveRaw = useMemo(() => {
+  const statusRaw = useMemo(() => {
     return calculateEffectiveElemental(weaponRaw, rawPerc, rawFlat)
   }, [weaponRaw, rawPerc, rawFlat])
 
-  const effectiveEle = useMemo(() => {
+  const statusEle = useMemo(() => {
     return calculateEffectiveElemental(weaponElemental, elePerc, eleFlat)
   }, [weaponElemental, elePerc, eleFlat])
 
@@ -93,8 +95,8 @@ export default function Main() {
   const { average, nonCrit, crit, raw, ele, rawCrit, eleCrit } = useMemo(
     () =>
       calculateDamage(
-        effectiveRaw,
-        effectiveEle,
+        statusRaw * ((100 + rawModifier) / 100),
+        statusEle * ((100 + eleModifier) / 100),
         affinity,
         sharpness,
         criticalBoost,
@@ -104,8 +106,10 @@ export default function Main() {
         hitzoneEle
       ),
     [
-      effectiveRaw,
-      effectiveEle,
+      statusRaw,
+      statusEle,
+      rawModifier,
+      eleModifier,
       affinity,
       sharpness,
       criticalBoost,
@@ -223,16 +227,16 @@ export default function Main() {
           label="Misc. Attack"
           value={miscAb}
           onChangeValue={setMiscAb}
-          note="e.g. Petalace, Punishing Draw etc."
+          note="e.g. Petalace, Punishing Draw"
         />
         <NumberInput
           label="Misc. Affinity"
           value={miscAffinity}
           onChangeValue={setMiscAffinity}
-          note="e.g. Latent Power, Maximum Might etc."
+          note="e.g. Latent Power, Maximum Might"
         />
       </Box>
-      <Box header="Monster">
+      <Box header="Attack">
         <NumberInput
           label="Motion Value"
           value={motionValue}
@@ -248,18 +252,23 @@ export default function Main() {
           value={hitzoneEle}
           onChangeValue={setHitzoneEle}
         />
+        <NumberInput
+          label="Raw Modifier (%)"
+          value={rawModifier}
+          onChangeValue={setRawModifier}
+          note="e.g. Switch Axe Power Phial"
+        />
+        <NumberInput
+          label="Elemental Modifier (%)"
+          value={eleModifier}
+          onChangeValue={setEleModifier}
+          note="e.g. Greatsword charge attacks"
+        />
       </Box>
-      <Box header="Derived Attributes">
-        <NumberInput
-          label="Effective Raw"
-          value={toFixed(effectiveRaw)}
-          disabled
-        />
-        <NumberInput
-          label="Effective Elemental"
-          value={toFixed(effectiveEle)}
-          disabled
-        />
+      <Box header="Attributes">
+        {'Should match what you see in-game'}
+        <NumberInput label="Raw" value={toFixed(statusRaw)} disabled />
+        <NumberInput label="Elemental" value={toFixed(statusEle)} disabled />
         <NumberInput label="Affinity (%)" value={affinity} disabled />
       </Box>
       <Box header="Results">

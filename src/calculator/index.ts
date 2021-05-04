@@ -3,7 +3,9 @@ export function calculateEffectiveRaw(
   rawPercentageBonus: number,
   rawFlatBonus: number
 ) {
-  return weaponRaw * ((100 + rawPercentageBonus) / 100) + rawFlatBonus
+  return Math.floor(
+    weaponRaw * ((100 + rawPercentageBonus) / 100) + rawFlatBonus
+  )
 }
 
 export function calculateEffectiveElemental(
@@ -11,7 +13,9 @@ export function calculateEffectiveElemental(
   elePercentageBonus: number,
   eleFlatBonus: number
 ) {
-  return weaponEle * ((100 + elePercentageBonus) / 100) + eleFlatBonus
+  return Math.floor(
+    weaponEle * ((100 + elePercentageBonus) / 100) + eleFlatBonus
+  )
 }
 
 export function calculateDamage(
