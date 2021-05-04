@@ -1,33 +1,43 @@
-export function calculateDamage(
+export function calculateEffectiveRaw(
   weaponRaw: number,
-  weaponEle: number,
   rawPercentageBonus: number,
-  rawFlatBonus: number,
+  rawFlatBonus: number
+) {
+  return weaponRaw * ((100 + rawPercentageBonus) / 100) + rawFlatBonus
+}
+
+export function calculateEffectiveElemental(
+  weaponEle: number,
   elePercentageBonus: number,
-  eleFlatBonus: number,
-  affinityPercentage: number,
+  eleFlatBonus: number
+) {
+  return weaponEle * ((100 + elePercentageBonus) / 100) + eleFlatBonus
+}
+
+export function calculateDamage(
+  effectiveRaw: number,
+  effectiveElemental: number,
+  affinity: number,
+  sharpness: keyof typeof sharpnessRawMultiplier,
   critBoostLevel: number,
   critEleLevel: number,
-  sharpness: keyof typeof sharpnessRawMultiplier,
   motionValue: number,
   hitzoneRaw: number,
   hitZoneEle: number
 ) {
   const raw =
-    (weaponRaw * ((100 + rawPercentageBonus) / 100) + rawFlatBonus) *
+    effectiveRaw *
     (hitzoneRaw / 100) *
-    sharpnessRawMultiplier[sharpness] *
-    (motionValue / 100)
-
+    (motionValue / 100) *
+    sharpnessRawMultiplier[sharpness]
   const ele =
-    (weaponEle * ((100 + elePercentageBonus) / 100) + eleFlatBonus) *
-    sharpnessElementalMultiplier[sharpness] *
-    (hitZoneEle / 100)
+    effectiveElemental *
+    (hitZoneEle / 100) *
+    sharpnessElementalMultiplier[sharpness]
 
   const nonCrit = raw + ele
 
-  const isPositiveCrit = affinityPercentage >= 0
-  const effectiveAffinity = Math.min(Math.abs(affinityPercentage), 100)
+  const isPositiveCrit = affinity >= 0
 
   const positiveCrit =
     raw * criticalBoostSkill[critBoostLevel] +
@@ -36,10 +46,10 @@ export function calculateDamage(
   const negativeCrit = raw * 0.75 + ele
 
   const weightedCrit = isPositiveCrit
-    ? positiveCrit * (effectiveAffinity / 100)
-    : negativeCrit * (Math.abs(effectiveAffinity) / 100)
+    ? positiveCrit * (affinity / 100)
+    : negativeCrit * (Math.abs(affinity) / 100)
 
-  const weightedNonCrit = (nonCrit * (100 - Math.abs(effectiveAffinity))) / 100
+  const weightedNonCrit = (nonCrit * (100 - Math.abs(affinity))) / 100
 
   const average = weightedCrit + weightedNonCrit
 
@@ -62,6 +72,9 @@ export const attackBoostSkill = [
   [10, 10],
 ] as const
 
+export const criticalEyeSkill = [0, 5, 10, 15, 20, 25, 30, 40]
+
+/** percentage, flat */
 export const elementalAttackSkill = [
   [0, 0],
   [0, 2],

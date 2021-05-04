@@ -9,6 +9,8 @@ import {
   elementalAttackSkill,
   Sharpness,
   bludgeonerSkill,
+  criticalEyeSkill,
+  calculateEffectiveElemental,
 } from './calculator'
 
 export default function Main() {
@@ -70,26 +72,47 @@ export default function Main() {
     return elementalAttackSkill[elementalAttack][1]
   }, [elementalAttack])
 
+  const effectiveRaw = useMemo(() => {
+    return calculateEffectiveElemental(weaponRaw, rawPerc, rawFlat)
+  }, [weaponRaw, rawPerc, rawFlat])
+
+  const effectiveEle = useMemo(() => {
+    return calculateEffectiveElemental(weaponElemental, elePerc, eleFlat)
+  }, [weaponElemental, elePerc, eleFlat])
+
   const affinity = useMemo(() => {
     const wexBonus = hitzoneRaw >= 45 ? weaknessExploitSkill[wex] : 0
-    const criticalEyeBonus = criticalEye * 5
-    return weaponAffinity + wexBonus + criticalEyeBonus + miscAffinity
+    const criticalEyeBonus = criticalEyeSkill[criticalEye]
+
+    const aff = weaponAffinity + wexBonus + criticalEyeBonus + miscAffinity
+
+    return aff >= 0 ? Math.min(100, aff) : Math.max(-100, aff)
   }, [weaponAffinity, criticalEye, wex, hitzoneRaw, miscAffinity])
 
-  const { average, nonCrit, crit } = calculateDamage(
-    weaponRaw,
-    weaponElemental,
-    rawPerc,
-    rawFlat,
-    elePerc,
-    eleFlat,
-    affinity,
-    criticalBoost,
-    criticalElement,
-    sharpness,
-    motionValue,
-    hitzoneRaw,
-    hitzoneEle
+  const { average, nonCrit, crit } = useMemo(
+    () =>
+      calculateDamage(
+        effectiveRaw,
+        effectiveEle,
+        affinity,
+        sharpness,
+        criticalBoost,
+        criticalElement,
+        motionValue,
+        hitzoneRaw,
+        hitzoneEle
+      ),
+    [
+      effectiveRaw,
+      effectiveEle,
+      affinity,
+      sharpness,
+      criticalBoost,
+      criticalElement,
+      motionValue,
+      hitzoneRaw,
+      hitzoneEle,
+    ]
   )
 
   return (
@@ -119,7 +142,6 @@ export default function Main() {
           onChangeValue={(i) =>
             setSharpness(i as keyof typeof sharpnessRawMultiplier)
           }
-          note="Yellow sharpness (and below?) has an additional penalty based on attack animation"
         />
       </Box>
       <Box header="Skills">
@@ -168,7 +190,7 @@ export default function Main() {
           onChangeValue={(v) => setCriticalElement(parseInt(v))}
         />
       </Box>
-      <Box header="Miscellaneous">
+      <Box header="Others">
         <Checkbox
           label="Powercharm"
           value={powercharm}
@@ -197,16 +219,16 @@ export default function Main() {
           onChangeValue={(s: string) => setDd(s as keyof typeof demondrug)}
         />
         <NumberInput
-          label="Attack"
+          label="Misc. Attack"
           value={miscAb}
           onChangeValue={setMiscAb}
-          note="e.g. Petalace"
+          note="e.g. Petalace, Punishing Draw etc."
         />
         <NumberInput
-          label="Affinity"
+          label="Misc. Affinity"
           value={miscAffinity}
           onChangeValue={setMiscAffinity}
-          note="e.g. Latent Power, etc."
+          note="e.g. Latent Power, Maximum Might etc."
         />
       </Box>
       <Box header="Monster">
@@ -216,19 +238,27 @@ export default function Main() {
           onChangeValue={setMotionValue}
         />
         <NumberInput
-          label="Hitzone (Raw)"
+          label="Raw Hitzone"
           value={hitzoneRaw}
           onChangeValue={setHitzoneRaw}
         />
         <NumberInput
-          label="Hitzone (Elemental)"
+          label="Elemental Hitzone"
           value={hitzoneEle}
           onChangeValue={setHitzoneEle}
         />
       </Box>
       <Box header="Derived Attributes">
-        <NumberInput label="Raw (%)" value={rawPerc} disabled />
-        <NumberInput label="Raw (+)" value={rawFlat} disabled />
+        <NumberInput
+          label="Effective Raw"
+          value={parseFloat(effectiveRaw.toFixed(2))}
+          disabled
+        />
+        <NumberInput
+          label="Effective Elemental"
+          value={parseFloat(effectiveEle.toFixed(2))}
+          disabled
+        />
         <NumberInput label="Affinity (%)" value={affinity} disabled />
       </Box>
       <Box header="Results">
