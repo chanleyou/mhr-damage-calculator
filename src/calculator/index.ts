@@ -95,7 +95,14 @@ export const elementalAttackSkill = [
   [20, 4],
 ]
 
-export type Sharpness = 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'white'
+export type Sharpness =
+  | 'red'
+  | 'orange'
+  | 'yellow'
+  | 'green'
+  | 'blue'
+  | 'white'
+  | 'ranged'
 
 export const sharpnessRawMultiplier = {
   white: 1.32,
@@ -104,6 +111,7 @@ export const sharpnessRawMultiplier = {
   yellow: 1,
   orange: 0.75,
   red: 0.5,
+  ranged: 1,
 } as const
 
 export const sharpnessElementalMultiplier: { [K in Sharpness]: number } = {
@@ -113,6 +121,7 @@ export const sharpnessElementalMultiplier: { [K in Sharpness]: number } = {
   yellow: 0.75,
   orange: 0.5,
   red: 0.25,
+  ranged: 1,
 } as const
 
 export const criticalBoostSkill = [1.25, 1.3, 1.35, 1.4] as const
