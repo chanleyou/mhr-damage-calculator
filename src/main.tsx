@@ -12,6 +12,7 @@ import {
   criticalEyeSkill,
   calculateEffectiveElemental,
 } from './calculator'
+import { toFixed } from './utils'
 
 export default function Main() {
   // weapon
@@ -89,7 +90,7 @@ export default function Main() {
     return aff >= 0 ? Math.min(100, aff) : Math.max(-100, aff)
   }, [weaponAffinity, criticalEye, wex, hitzoneRaw, miscAffinity])
 
-  const { average, nonCrit, crit } = useMemo(
+  const { average, nonCrit, crit, raw, ele, rawCrit, eleCrit } = useMemo(
     () =>
       calculateDamage(
         effectiveRaw,
@@ -251,22 +252,27 @@ export default function Main() {
       <Box header="Derived Attributes">
         <NumberInput
           label="Effective Raw"
-          value={parseFloat(effectiveRaw.toFixed(2))}
+          value={toFixed(effectiveRaw)}
           disabled
         />
         <NumberInput
           label="Effective Elemental"
-          value={parseFloat(effectiveEle.toFixed(2))}
+          value={toFixed(effectiveEle)}
           disabled
         />
         <NumberInput label="Affinity (%)" value={affinity} disabled />
       </Box>
       <Box header="Results">
         <div>
-          <strong>Average: {parseFloat(average.toFixed(2))}</strong>
+          <h3>Average: {toFixed(average)}</h3>
         </div>
-        <div>nonCrit: {parseFloat(nonCrit.toFixed(2))}</div>
-        <div>Crit: {parseFloat(crit.toFixed(2))}</div>
+        <br />
+        <div>
+          nonCrit: {toFixed(nonCrit)} ({toFixed(raw)} + {toFixed(ele)})
+        </div>
+        <div>
+          Crit: {toFixed(crit)} ({toFixed(rawCrit)} + {toFixed(eleCrit)})
+        </div>
       </Box>
     </div>
   )

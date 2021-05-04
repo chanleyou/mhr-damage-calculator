@@ -30,18 +30,21 @@ export function calculateDamage(
     (hitzoneRaw / 100) *
     (motionValue / 100) *
     sharpnessRawMultiplier[sharpness]
+
+  const rawCrit = raw * criticalBoostSkill[critBoostLevel]
+
   const ele =
     effectiveElemental *
     (hitZoneEle / 100) *
     sharpnessElementalMultiplier[sharpness]
 
+  const eleCrit = ele * criticalElementSkill[critEleLevel]
+
   const nonCrit = raw + ele
 
   const isPositiveCrit = affinity >= 0
 
-  const positiveCrit =
-    raw * criticalBoostSkill[critBoostLevel] +
-    ele * criticalElementSkill[critEleLevel]
+  const positiveCrit = rawCrit + eleCrit
 
   const negativeCrit = raw * 0.75 + ele
 
@@ -57,6 +60,10 @@ export function calculateDamage(
     crit: isPositiveCrit ? positiveCrit : negativeCrit,
     nonCrit,
     average,
+    raw,
+    ele,
+    rawCrit: isPositiveCrit ? rawCrit : raw * 0.75,
+    eleCrit,
   }
 }
 
