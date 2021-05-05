@@ -78,17 +78,6 @@ export default function Main() {
   const [rawMultiplier, setRawMultiplier] = useState(0)
   const [eleMultiplier, setEleMultiplier] = useState(0)
 
-  const rawFlatBonus = useMemo(() => {
-    return (
-      (powercharm ? 6 : 0) +
-      (powertalon ? 9 : 0) +
-      (mightSeed ? 10 : 0) +
-      (demonPowder ? 10 : 0) +
-      demondrugTypes[demondrug] +
-      miscAb
-    )
-  }, [miscAb, powercharm, powertalon, mightSeed, demonPowder, demondrug])
-
   const uiRaw = useMemo(() => {
     return calculateUIRaw({
       weaponRaw,
@@ -96,7 +85,7 @@ export default function Main() {
       bludgeoner,
       attackBoost,
       rawModifierPercentage,
-      rawFlatBonus,
+      rawFlatBonus: miscAb,
       powercharm,
       powertalon,
       mightSeed,
@@ -110,7 +99,7 @@ export default function Main() {
     bludgeoner,
     sharpness,
     rawModifierPercentage,
-    rawFlatBonus,
+    miscAb,
     powercharm,
     powertalon,
     mightSeed,
