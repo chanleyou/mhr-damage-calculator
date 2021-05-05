@@ -50,38 +50,35 @@ export function calculateDamage(
     percentage(motionValue) *
     sharpnessRawMultiplier[sharpness]
 
-  const rawCrit = raw * criticalBoostSkill[critBoostLevel]
-
   const ele =
     effectiveElemental *
     percentage(hitZoneEle) *
     sharpnessElementalMultiplier[sharpness]
 
-  const eleCrit = ele * criticalElementSkill[critEleLevel]
+  const isPositiveCrit = affinity >= 0
+
+  const rawCrit =
+    raw * (isPositiveCrit ? criticalBoostSkill[critBoostLevel] : 0.75)
+
+  const eleCrit =
+    ele * (isPositiveCrit ? criticalElementSkill[critEleLevel] : 1)
 
   const nonCrit = Math.round(raw) + Math.round(ele)
+  const crit = Math.round(rawCrit) + Math.round(eleCrit)
 
-  const isPositiveCrit = affinity >= 0
   const absoluteAffinity = Math.abs(affinity)
-
-  const positiveCrit = Math.round(rawCrit) + Math.round(eleCrit)
-
-  const negativeCrit = Math.round(raw * 0.75) + Math.round(ele)
-
-  const weightedCrit =
-    absoluteAffinity * percentage(isPositiveCrit ? positiveCrit : negativeCrit)
-
+  const weightedCrit = percentage(absoluteAffinity) * crit
   const weightedNonCrit = percentage(100 - absoluteAffinity) * nonCrit
 
   const average = weightedCrit + weightedNonCrit
 
   return {
-    crit: isPositiveCrit ? positiveCrit : negativeCrit,
+    crit,
     nonCrit,
     average,
     raw,
     ele,
-    rawCrit: isPositiveCrit ? rawCrit : raw * 0.75,
+    rawCrit,
     eleCrit,
   }
 }
