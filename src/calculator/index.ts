@@ -1,5 +1,9 @@
 function percentage(n: number) {
-  return (100 + n) / 100
+  return n / 100
+}
+
+function mPercentage(n: number) {
+  return percentage(100 + n)
 }
 
 export function calculateUIRaw(
@@ -12,9 +16,9 @@ export function calculateUIRaw(
 ) {
   return Math.floor(
     weaponRaw *
-      percentage(attackBoostPercentage) *
-      percentage(bludgeoner) *
-      percentage(rawModifierPercentage) +
+      mPercentage(attackBoostPercentage) *
+      mPercentage(bludgeoner) *
+      mPercentage(rawModifierPercentage) +
       attackBoostFlat +
       rawFlatBonus +
       0.1
@@ -26,7 +30,7 @@ export function calculateUIElement(
   elePercentageBonus: number,
   eleFlatBonus: number
 ) {
-  return Math.floor(weaponEle * percentage(elePercentageBonus) + eleFlatBonus)
+  return Math.floor(weaponEle * mPercentage(elePercentageBonus) + eleFlatBonus)
 }
 
 export function calculateDamage(
@@ -42,15 +46,15 @@ export function calculateDamage(
 ) {
   const raw =
     effectiveRaw *
-    (hitzoneRaw / 100) *
-    (motionValue / 100) *
+    percentage(hitzoneRaw) *
+    percentage(motionValue) *
     sharpnessRawMultiplier[sharpness]
 
   const rawCrit = raw * criticalBoostSkill[critBoostLevel]
 
   const ele =
     effectiveElemental *
-    (hitZoneEle / 100) *
+    percentage(hitZoneEle) *
     sharpnessElementalMultiplier[sharpness]
 
   const eleCrit = ele * criticalElementSkill[critEleLevel]
@@ -58,16 +62,16 @@ export function calculateDamage(
   const nonCrit = Math.round(raw) + Math.round(ele)
 
   const isPositiveCrit = affinity >= 0
+  const absoluteAffinity = Math.abs(affinity)
 
   const positiveCrit = Math.round(rawCrit) + Math.round(eleCrit)
 
   const negativeCrit = Math.round(raw * 0.75) + Math.round(ele)
 
-  const weightedCrit = isPositiveCrit
-    ? positiveCrit * (affinity / 100)
-    : negativeCrit * percentage(affinity)
+  const weightedCrit =
+    absoluteAffinity * percentage(isPositiveCrit ? positiveCrit : negativeCrit)
 
-  const weightedNonCrit = (nonCrit * (100 - Math.abs(affinity))) / 100
+  const weightedNonCrit = percentage(100 - absoluteAffinity) * nonCrit
 
   const average = weightedCrit + weightedNonCrit
 
