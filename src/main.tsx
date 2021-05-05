@@ -10,8 +10,8 @@ import {
   Sharpness,
   bludgeonerSkill,
   criticalEyeSkill,
-  calculateEffectiveElemental,
-  calculateEffectiveRaw,
+  calculateUIElement,
+  calculateUIRaw,
 } from './calculator'
 import { toFixed } from './utils'
 
@@ -68,7 +68,7 @@ export default function Main() {
   }, [elementalAttack])
 
   const statusRaw = useMemo(() => {
-    return calculateEffectiveRaw(
+    return calculateUIRaw(
       weaponRaw,
       attackBoostSkill[attackBoost][1],
       attackBoostSkill[attackBoost][0],
@@ -81,7 +81,7 @@ export default function Main() {
   }, [weaponRaw, attackBoost, bludgeoner, sharpness, rawModifier, rawFlatBonus])
 
   const statusEle = useMemo(() => {
-    return calculateEffectiveElemental(weaponElemental, elePerc, eleFlat)
+    return calculateUIElement(weaponElemental, elePerc, eleFlat)
   }, [weaponElemental, elePerc, eleFlat])
 
   const affinity = useMemo(() => {
@@ -224,7 +224,7 @@ export default function Main() {
           onChangeValue={(s: string) => setDd(s as keyof typeof demondrug)}
         />
         <NumberInput
-          label="Misc. Attack"
+          label="Misc. Attack Bonus (Flat)"
           value={miscAb}
           onChangeValue={setMiscAb}
           note="e.g. Petalace, Punishing Draw"
@@ -248,12 +248,12 @@ export default function Main() {
           onChangeValue={setHitzoneRaw}
         />
         <NumberInput
-          label="Elemental Hitzone"
+          label="Element Hitzone"
           value={hitzoneEle}
           onChangeValue={setHitzoneEle}
         />
         <NumberInput
-          label="Raw Modifier (%)"
+          label="Raw Attack Modifier (Percentage)"
           value={rawModifier}
           onChangeValue={setRawModifier}
           note="e.g. Kinsect Buff"
@@ -265,15 +265,19 @@ export default function Main() {
           note="e.g. SA Power Phial"
         />
         <NumberInput
-          label="Elemental Damage Multiplier (%)"
+          label="Element Damage Multiplier (%)"
           value={eleMultiplier}
           onChangeValue={setEleMultiplier}
           note="e.g. Greatsword charge attacks"
         />
       </Box>
       <Box header="Attributes">
-        {'Should match what you see in-game'}
-        <NumberInput label="Raw" value={toFixed(statusRaw)} disabled />
+        <NumberInput
+          label="Raw"
+          value={toFixed(statusRaw)}
+          disabled
+          note="Should match in-game status"
+        />
         <NumberInput label="Element" value={toFixed(statusEle)} disabled />
         <NumberInput label="Affinity (%)" value={affinity} disabled />
       </Box>

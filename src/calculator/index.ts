@@ -2,7 +2,7 @@ function percentage(n: number) {
   return (100 + n) / 100
 }
 
-export function calculateEffectiveRaw(
+export function calculateUIRaw(
   weaponRaw: number,
   attackBoostFlat: number,
   attackBoostPercentage: number,
@@ -21,7 +21,7 @@ export function calculateEffectiveRaw(
   )
 }
 
-export function calculateEffectiveElemental(
+export function calculateUIElement(
   weaponEle: number,
   elePercentageBonus: number,
   eleFlatBonus: number
@@ -55,13 +55,13 @@ export function calculateDamage(
 
   const eleCrit = ele * criticalElementSkill[critEleLevel]
 
-  const nonCrit = Math.round(raw + ele)
+  const nonCrit = Math.round(raw) + Math.round(ele)
 
   const isPositiveCrit = affinity >= 0
 
-  const positiveCrit = Math.round(rawCrit + eleCrit)
+  const positiveCrit = Math.round(rawCrit) + Math.round(eleCrit)
 
-  const negativeCrit = raw * 0.75 + ele
+  const negativeCrit = Math.round(raw * 0.75) + Math.round(ele)
 
   const weightedCrit = isPositiveCrit
     ? positiveCrit * (affinity / 100)
