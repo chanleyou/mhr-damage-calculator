@@ -11,6 +11,7 @@ import {
   bludgeonerSkill,
   criticalEyeSkill,
   calculateEffectiveElemental,
+  calculateEffectiveRaw,
 } from './calculator'
 import { toFixed } from './utils'
 
@@ -44,20 +45,11 @@ export default function Main() {
   const [hitzoneRaw, setHitzoneRaw] = useState(100)
   const [hitzoneEle, setHitzoneEle] = useState(30)
   const [rawModifier, setRawModifier] = useState(0)
-  const [eleModifier, setEleModifier] = useState(0)
+  const [rawMultiplier, setRawMultiplier] = useState(0)
+  const [eleMultiplier, setEleMultiplier] = useState(0)
 
-  const rawPerc = useMemo(() => {
+  const rawFlatBonus = useMemo(() => {
     return (
-      attackBoostSkill[attackBoost][0] +
-      (bludgeonerSkill[bludgeoner][0].includes(sharpness)
-        ? bludgeonerSkill[bludgeoner][1]
-        : 0)
-    )
-  }, [attackBoost, bludgeoner, sharpness])
-
-  const rawFlat = useMemo(() => {
-    return (
-      attackBoostSkill[attackBoost][1] +
       (powercharm ? 6 : 0) +
       (powertalon ? 9 : 0) +
       (mightSeed ? 10 : 0) +
@@ -65,7 +57,7 @@ export default function Main() {
       demondrug[dd] +
       miscAb
     )
-  }, [attackBoost, miscAb, powercharm, powertalon, mightSeed, demonPowder, dd])
+  }, [miscAb, powercharm, powertalon, mightSeed, demonPowder, dd])
 
   const elePerc = useMemo(() => {
     return elementalAttackSkill[elementalAttack][0]
@@ -76,8 +68,17 @@ export default function Main() {
   }, [elementalAttack])
 
   const statusRaw = useMemo(() => {
-    return calculateEffectiveElemental(weaponRaw, rawPerc, rawFlat)
-  }, [weaponRaw, rawPerc, rawFlat])
+    return calculateEffectiveRaw(
+      weaponRaw,
+      attackBoostSkill[attackBoost][1],
+      attackBoostSkill[attackBoost][0],
+      bludgeonerSkill[bludgeoner][0].includes(sharpness)
+        ? bludgeonerSkill[bludgeoner][1]
+        : 0,
+      rawModifier,
+      rawFlatBonus
+    )
+  }, [weaponRaw, attackBoost, bludgeoner, sharpness, rawModifier, rawFlatBonus])
 
   const statusEle = useMemo(() => {
     return calculateEffectiveElemental(weaponElemental, elePerc, eleFlat)
@@ -95,8 +96,8 @@ export default function Main() {
   const { average, nonCrit, crit, raw, ele, rawCrit, eleCrit } = useMemo(
     () =>
       calculateDamage(
-        statusRaw * ((100 + rawModifier) / 100),
-        statusEle * ((100 + eleModifier) / 100),
+        statusRaw,
+        statusEle * ((100 + eleMultiplier) / 100),
         affinity,
         sharpness,
         criticalBoost,
@@ -108,8 +109,7 @@ export default function Main() {
     [
       statusRaw,
       statusEle,
-      rawModifier,
-      eleModifier,
+      eleMultiplier,
       affinity,
       sharpness,
       criticalBoost,
@@ -256,19 +256,25 @@ export default function Main() {
           label="Raw Modifier (%)"
           value={rawModifier}
           onChangeValue={setRawModifier}
-          note="e.g. Switch Axe Power Phial"
+          note="e.g. Kinsect Buff"
         />
         <NumberInput
-          label="Elemental Modifier (%)"
-          value={eleModifier}
-          onChangeValue={setEleModifier}
+          label="Raw Damage Multiplier (%)"
+          value={rawMultiplier}
+          onChangeValue={setRawMultiplier}
+          note="e.g. SA Power Phial"
+        />
+        <NumberInput
+          label="Elemental Damage Multiplier (%)"
+          value={eleMultiplier}
+          onChangeValue={setEleMultiplier}
           note="e.g. Greatsword charge attacks"
         />
       </Box>
       <Box header="Attributes">
         {'Should match what you see in-game'}
         <NumberInput label="Raw" value={toFixed(statusRaw)} disabled />
-        <NumberInput label="Elemental" value={toFixed(statusEle)} disabled />
+        <NumberInput label="Element" value={toFixed(statusEle)} disabled />
         <NumberInput label="Affinity (%)" value={affinity} disabled />
       </Box>
       <Box header="Results">
