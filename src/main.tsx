@@ -25,7 +25,7 @@ export default function Main() {
   // ramp-up skills
   const [dullingStrike, setDullingStrike] = useState(false)
   const [brutalStrike, setBrutalStrike] = useState(false)
-  const [elementExploit, setElementExploit] = useState(false)
+  // const [elementExploit, setElementExploit] = useState(false)
 
   const prevStrike = useRef<'dulling' | 'brutal'>()
 
@@ -52,7 +52,7 @@ export default function Main() {
   const [criticalElement, setCriticalElement] = useState(0)
   const [wex, setWex] = useState(0)
   const [bludgeoner, setBludgeoner] = useState(0)
-  const [ammoTypeUp, setAmmoTypeUp] = useState(0)
+  // const [ammoTypeUp, setAmmoTypeUp] = useState(0)
 
   // conditionals
   const [agitator, setAgitator] = useState(0)
