@@ -1,26 +1,48 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { NumberInput, Dropdown, Box, Checkbox } from './components'
 import {
   calculateDamage,
   sharpnessRawMultiplier,
-  attackBoostSkill,
   weaknessExploitSkill,
-  demondrug,
-  elementalAttackSkill,
+  demondrugTypes,
   Sharpness,
-  bludgeonerSkill,
   criticalEyeSkill,
-  calculateUIElement,
   calculateUIRaw,
+  calculateUIElement,
+  maximumMightSkill,
+  latentPowerSkill,
+  agitatorSkill,
 } from './calculator'
 import { toFixed } from './utils'
 
 export default function Main() {
   // weapon
   const [weaponRaw, setWeaponRaw] = useState(200)
-  const [weaponElemental, setWeaponElemental] = useState(0)
+  const [weaponElement, setWeaponElement] = useState(0)
   const [weaponAffinity, setWeaponAffinity] = useState(0)
-  const [sharpness, setSharpness] = useState<Sharpness>('white')
+  const [sharpness, setSharpness] = useState<Sharpness>('White')
+
+  // ramp-up skills
+  const [dullingStrike, setDullingStrike] = useState(false)
+  const [brutalStrike, setBrutalStrike] = useState(false)
+  const [elementExploit, setElementExploit] = useState(false)
+
+  const prevStrike = useRef<'dulling' | 'brutal'>()
+
+  useEffect(() => {
+    if (dullingStrike && brutalStrike) {
+      switch (prevStrike.current) {
+        case 'dulling':
+          setDullingStrike(false)
+          prevStrike.current = 'brutal'
+          break
+        case 'brutal':
+          setBrutalStrike(false)
+          prevStrike.current = 'dulling'
+      }
+    } else if (dullingStrike) prevStrike.current = 'dulling'
+    else if (brutalStrike) prevStrike.current = 'brutal'
+  }, [dullingStrike, brutalStrike])
 
   // skills
   const [attackBoost, setAttackBoost] = useState(0)
@@ -30,13 +52,21 @@ export default function Main() {
   const [criticalElement, setCriticalElement] = useState(0)
   const [wex, setWex] = useState(0)
   const [bludgeoner, setBludgeoner] = useState(0)
+  const [ammoTypeUp, setAmmoTypeUp] = useState(0)
+
+  // conditionals
+  const [agitator, setAgitator] = useState(0)
+  const [maximumMight, setMaximumMight] = useState(0)
+  const [latentPower, setLatentPower] = useState(0)
 
   const [powercharm, setPowercharm] = useState(true)
   const [powertalon, setPowertalon] = useState(true)
 
   const [mightSeed, setMightSeed] = useState(false)
   const [demonPowder, setDemonPowder] = useState(false)
-  const [dd, setDd] = useState<keyof typeof demondrug>('None')
+  const [demondrug, setDemondrug] = useState<keyof typeof demondrugTypes>(
+    'None'
+  )
 
   const [miscAb, setMiscAb] = useState(0)
   const [miscAffinity, setMiscAffinity] = useState(0)
@@ -44,7 +74,7 @@ export default function Main() {
   const [motionValue, setMotionValue] = useState(40)
   const [hitzoneRaw, setHitzoneRaw] = useState(100)
   const [hitzoneEle, setHitzoneEle] = useState(30)
-  const [rawModifier, setRawModifier] = useState(0)
+  const [rawModifierPercentage, setRawModifierPercentage] = useState(0)
   const [rawMultiplier, setRawMultiplier] = useState(0)
   const [eleMultiplier, setEleMultiplier] = useState(0)
 
@@ -54,71 +84,119 @@ export default function Main() {
       (powertalon ? 9 : 0) +
       (mightSeed ? 10 : 0) +
       (demonPowder ? 10 : 0) +
-      demondrug[dd] +
+      demondrugTypes[demondrug] +
       miscAb
     )
-  }, [miscAb, powercharm, powertalon, mightSeed, demonPowder, dd])
+  }, [miscAb, powercharm, powertalon, mightSeed, demonPowder, demondrug])
 
-  const elePerc = useMemo(() => {
-    return elementalAttackSkill[elementalAttack][0]
-  }, [elementalAttack])
-
-  const eleFlat = useMemo(() => {
-    return elementalAttackSkill[elementalAttack][1]
-  }, [elementalAttack])
-
-  const statusRaw = useMemo(() => {
-    return calculateUIRaw(
+  const uiRaw = useMemo(() => {
+    return calculateUIRaw({
       weaponRaw,
-      attackBoostSkill[attackBoost][1],
-      attackBoostSkill[attackBoost][0],
-      bludgeonerSkill[bludgeoner][0].includes(sharpness)
-        ? bludgeonerSkill[bludgeoner][1]
-        : 0,
-      rawModifier,
-      rawFlatBonus
-    )
-  }, [weaponRaw, attackBoost, bludgeoner, sharpness, rawModifier, rawFlatBonus])
+      sharpness,
+      bludgeoner,
+      attackBoost,
+      rawModifierPercentage,
+      rawFlatBonus,
+      powercharm,
+      powertalon,
+      mightSeed,
+      demonPowder,
+      demondrug,
+      agitator,
+    })
+  }, [
+    weaponRaw,
+    attackBoost,
+    bludgeoner,
+    sharpness,
+    rawModifierPercentage,
+    rawFlatBonus,
+    powercharm,
+    powertalon,
+    mightSeed,
+    demonPowder,
+    demondrug,
+    agitator,
+  ])
 
-  const statusEle = useMemo(() => {
-    return calculateUIElement(weaponElemental, elePerc, eleFlat)
-  }, [weaponElemental, elePerc, eleFlat])
+  const uiElement = useMemo(() => {
+    return calculateUIElement({ weaponElement, elementalAttack })
+  }, [weaponElement, elementalAttack])
 
   const affinity = useMemo(() => {
     const wexBonus = hitzoneRaw >= 45 ? weaknessExploitSkill[wex] : 0
     const criticalEyeBonus = criticalEyeSkill[criticalEye]
 
-    const aff = weaponAffinity + wexBonus + criticalEyeBonus + miscAffinity
+    const maximumMightBonus = maximumMightSkill[maximumMight]
+    const latentPowerBonus = latentPowerSkill[latentPower]
+    const agitatorBonus = agitatorSkill[agitator][1]
+
+    const aff =
+      weaponAffinity +
+      wexBonus +
+      criticalEyeBonus +
+      miscAffinity +
+      maximumMightBonus +
+      latentPowerBonus +
+      agitatorBonus
 
     return aff >= 0 ? Math.min(100, aff) : Math.max(-100, aff)
-  }, [weaponAffinity, criticalEye, wex, hitzoneRaw, miscAffinity])
+  }, [
+    weaponAffinity,
+    criticalEye,
+    wex,
+    hitzoneRaw,
+    miscAffinity,
+    maximumMight,
+    latentPower,
+    agitator,
+  ])
 
-  const { average, nonCrit, crit, raw, ele, rawCrit, eleCrit } = useMemo(
-    () =>
-      calculateDamage(
-        statusRaw,
-        statusEle * ((100 + eleMultiplier) / 100),
-        affinity,
-        sharpness,
-        criticalBoost,
-        criticalElement,
-        motionValue,
-        hitzoneRaw,
-        hitzoneEle
-      ),
-    [
-      statusRaw,
-      statusEle,
-      eleMultiplier,
-      affinity,
+  const {
+    average,
+    hit,
+    crit,
+    rawHit,
+    eleHit,
+    rawCrit,
+    eleCrit,
+    brutalStrikeCrit,
+    brutalStrikeRawCrit,
+    dullingStrikeHit,
+    dullingStrikeRawHit,
+    dullingStrikeCrit,
+    dullingStrikeRawCrit,
+  } = useMemo(() => {
+    return calculateDamage({
+      uiRaw,
       sharpness,
+      motionValue,
+      hitzoneEle,
+      hitzoneRaw,
+      uiElement,
+      affinity,
       criticalBoost,
       criticalElement,
-      motionValue,
-      hitzoneRaw,
-      hitzoneEle,
-    ]
-  )
+      rawMultiplier,
+      eleMultiplier,
+      brutalStrike,
+      dullingStrike,
+    })
+  }, [
+    dullingStrike,
+    uiRaw,
+    sharpness,
+    motionValue,
+    hitzoneEle,
+    hitzoneRaw,
+    uiElement,
+    affinity,
+    criticalBoost,
+    criticalElement,
+    rawMultiplier,
+    eleMultiplier,
+    brutalStrike,
+  ])
 
   return (
     <div className="main">
@@ -131,8 +209,8 @@ export default function Main() {
           />
           <NumberInput
             label="Element"
-            value={weaponElemental}
-            onChangeValue={setWeaponElemental}
+            value={weaponElement}
+            onChangeValue={setWeaponElement}
           />
           <NumberInput
             label="Affinity (%)"
@@ -142,12 +220,29 @@ export default function Main() {
         </div>
         <Dropdown
           options={Object.keys(sharpnessRawMultiplier)}
-          label="sharpness"
+          label="Sharpness"
           placeholder="Sharpness"
           onChangeValue={(i) =>
             setSharpness(i as keyof typeof sharpnessRawMultiplier)
           }
         />
+        Ramp-Up Skills
+        <div style={{ height: '8px' }} />
+        <Checkbox
+          label="Brutal Strike"
+          value={brutalStrike}
+          onChangeValue={setBrutalStrike}
+        />
+        <Checkbox
+          label="Dulling Strike"
+          value={dullingStrike}
+          onChangeValue={setDullingStrike}
+        />
+        {/* <Checkbox
+          label="Element Exploit"
+          value={elementExploit}
+          onChangeValue={setElementExploit}
+        /> */}
       </Box>
       <Box header="Skills">
         <Dropdown
@@ -187,12 +282,39 @@ export default function Main() {
           label="Critical Boost"
           value={criticalBoost.toString()}
           onChangeValue={(v) => setCriticalBoost(parseInt(v))}
-        />{' '}
+        />
         <Dropdown
           options={[0, 1, 2, 3]}
           label="Critical Element"
           value={criticalElement.toString()}
           onChangeValue={(v) => setCriticalElement(parseInt(v))}
+        />
+        {/* <Dropdown
+          options={[0, 1, 2, 3]}
+          label="Ammo Type Up"
+          value={ammoTypeUp.toString()}
+          onChangeValue={(v) => setAmmoTypeUp(parseInt(v))}
+          note="e.g. Pierce/Rapid Fire/Spread Up"
+        /> */}
+      </Box>
+      <Box header="Skills 2">
+        <Dropdown
+          label="Agitator"
+          options={[0, 1, 2, 3, 4, 5]}
+          value={agitator.toString()}
+          onChangeValue={(v) => setAgitator(parseInt(v))}
+        />
+        <Dropdown
+          label="Latent Power"
+          options={[0, 1, 2, 3, 4, 5]}
+          value={latentPower.toString()}
+          onChangeValue={(v) => setLatentPower(parseInt(v))}
+        />
+        <Dropdown
+          label="Maximum Might"
+          options={[0, 1, 2, 3]}
+          value={maximumMight.toString()}
+          onChangeValue={(v) => setMaximumMight(parseInt(v))}
         />
       </Box>
       <Box header="Others">
@@ -220,20 +342,22 @@ export default function Main() {
         <Dropdown
           options={['None', 'Demondrug', 'Mega Demondrug']}
           label="Demondrug"
-          value={dd}
-          onChangeValue={(s: string) => setDd(s as keyof typeof demondrug)}
+          value={demondrug}
+          onChangeValue={(s: string) =>
+            setDemondrug(s as keyof typeof demondrugTypes)
+          }
         />
         <NumberInput
           label="Misc. Attack Bonus (Flat)"
           value={miscAb}
           onChangeValue={setMiscAb}
-          note="e.g. Petalace, Punishing Draw"
+          note="e.g. Butterflame"
         />
         <NumberInput
           label="Misc. Affinity"
           value={miscAffinity}
           onChangeValue={setMiscAffinity}
-          note="e.g. Latent Power, Maximum Might"
+          note="e.g. Cutterfly"
         />
       </Box>
       <Box header="Attack">
@@ -254,8 +378,8 @@ export default function Main() {
         />
         <NumberInput
           label="Raw Attack Modifier (Percentage)"
-          value={rawModifier}
-          onChangeValue={setRawModifier}
+          value={rawModifierPercentage}
+          onChangeValue={setRawModifierPercentage}
           note="e.g. Kinsect Buff"
         />
         <NumberInput
@@ -272,13 +396,8 @@ export default function Main() {
         />
       </Box>
       <Box header="Attributes">
-        <NumberInput
-          label="Raw"
-          value={toFixed(statusRaw)}
-          disabled
-          note="Should match in-game status"
-        />
-        <NumberInput label="Element" value={toFixed(statusEle)} disabled />
+        <NumberInput label="Raw" value={toFixed(uiRaw)} disabled />
+        <NumberInput label="Element" value={toFixed(uiElement)} disabled />
         <NumberInput label="Affinity (%)" value={affinity} disabled />
       </Box>
       <Box header="Results">
@@ -287,11 +406,35 @@ export default function Main() {
         </div>
         <br />
         <div>
-          nonCrit: {toFixed(nonCrit)} ({toFixed(raw)} + {toFixed(ele)})
+          Hit: {toFixed(hit)} ({toFixed(rawHit)} + {toFixed(eleHit)})
         </div>
         <div>
-          Crit: {toFixed(crit)} ({toFixed(rawCrit)} + {toFixed(eleCrit)})
+          Critical: {toFixed(crit)} ({toFixed(rawCrit)} + {toFixed(eleCrit)})
         </div>
+        {brutalStrike && (
+          <div
+            style={{
+              textDecoration: affinity >= 0 ? 'line-through' : 'none',
+            }}
+          >
+            <br />
+            Brutal Strike: {toFixed(brutalStrikeCrit)} (
+            {toFixed(brutalStrikeRawCrit)} + {toFixed(eleCrit)})
+          </div>
+        )}
+        {dullingStrike && (
+          <>
+            <br />
+            <div>
+              Dulling Strike Hit: {toFixed(dullingStrikeHit)} (
+              {toFixed(dullingStrikeRawHit)} + {toFixed(eleHit)})
+            </div>
+            <div>
+              Dulling Strike Critical: {toFixed(dullingStrikeCrit)} (
+              {toFixed(dullingStrikeRawCrit)} + {toFixed(eleCrit)})
+            </div>
+          </>
+        )}
       </Box>
     </div>
   )

@@ -23,7 +23,7 @@ export default function Checkbox({
         onChange={(e) => onChangeValue(e.target.checked)}
         disabled={disabled}
       />
-      <label>{label}</label>
+      <label onClick={() => onChangeValue(!value)}>{label}</label>
     </div>
   )
 }

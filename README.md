@@ -1,8 +1,7 @@
-### Todo
+### To-Do
 
-- Dulling Strike, Brutal Strike
+- Start keeping a changelog
+- More Ramp-Up skills: Elemental Exploit, Anti-X Species, etc
+- Palico buffs, HH buffs, weapon-specific mechanics, environmental buffs, etc
+- Built-in tab support (just open more browser tabs for now)
 - Elemental damage caps(???)
-- Percentage boosts (e.g. Anti-Aquatic Species, etc)
-- Double-check damage calcs
-- Tests using numbers vs in-game values
-- Multiple tabs (though I guess people can just do this on their browser)

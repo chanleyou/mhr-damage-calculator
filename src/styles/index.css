@@ -51,7 +51,8 @@ body {
 }
 
 .number-input label.note,
-.dropdown label.note {
+.dropdown label.note,
+.checkbox label.note {
   margin-top: 2px;
   font-size: 12px;
   font-style: oblique;

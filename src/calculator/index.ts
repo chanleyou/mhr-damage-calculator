@@ -6,80 +6,269 @@ function mPercentage(n: number) {
   return percentage(100 + n)
 }
 
-export function calculateUIRaw(
-  weaponRaw: number,
-  attackBoostFlat: number,
-  attackBoostPercentage: number,
-  bludgeoner: number,
-  rawModifierPercentage: number,
-  rawFlatBonus: number
+function calculateWeightedAverage(
+  arr: ([number, number] | undefined)[],
+  defaultValue: number
 ) {
+  let result = 0
+  let remainingPercentage = 100
+  arr.forEach((i) => {
+    if (!i) return
+    const [p, n] = i
+    result += percentage(p) * n
+    remainingPercentage -= p
+  })
+  return result + percentage(remainingPercentage) * defaultValue
+}
+
+export function calculateUIRaw({
+  weaponRaw,
+  sharpness,
+  attackBoost = 0,
+  bludgeoner = 0,
+  rawModifierPercentage = 0,
+  rawFlatBonus = 0,
+  powercharm,
+  powertalon,
+  mightSeed,
+  demonPowder,
+  demondrug = 'None',
+  agitator = 0,
+  mightyGuard = 0,
+}: {
+  weaponRaw: number
+  sharpness: Sharpness
+  attackBoost?: number
+  bludgeoner?: number
+  rawModifierPercentage?: number
+  rawFlatBonus?: number
+  powercharm?: boolean
+  powertalon?: boolean
+  mightSeed?: boolean
+  demonPowder?: boolean
+  demondrug?: keyof typeof demondrugTypes
+  mightyGuard?: number
+  agitator?: number
+}) {
+  const attackBoostPercentage = attackBoostSkill[attackBoost][0]
+  const attackBoostFlat = attackBoostSkill[attackBoost][1]
+  const bludgeonerPercentage = bludgeonerSkill[bludgeoner][0].includes(
+    sharpness
+  )
+    ? bludgeonerSkill[bludgeoner][1]
+    : 0
+
+  const mightyGuardPercentage = mightyGuardSkill[mightyGuard]
+
+  const flatBonuses =
+    agitatorSkill[agitator][0] +
+    (powercharm ? 6 : 0) +
+    (powertalon ? 9 : 0) +
+    (mightSeed ? 10 : 0) +
+    (demonPowder ? 10 : 0) +
+    demondrugTypes[demondrug]
+
   return Math.floor(
     weaponRaw *
       mPercentage(attackBoostPercentage) *
-      mPercentage(bludgeoner) *
+      mPercentage(bludgeonerPercentage) *
+      mPercentage(mightyGuardPercentage) *
       mPercentage(rawModifierPercentage) +
       attackBoostFlat +
       rawFlatBonus +
+      flatBonuses +
       0.1
   )
 }
 
-export function calculateUIElement(
-  weaponEle: number,
-  elePercentageBonus: number,
-  eleFlatBonus: number
-) {
-  return Math.floor(weaponEle * mPercentage(elePercentageBonus) + eleFlatBonus)
+export function calculateUIElement({
+  weaponElement = 0,
+  elementalAttack = 0,
+  eleModifierPercentage = 0,
+}: {
+  weaponElement: number
+  elementalAttack?: number
+  eleModifierPercentage?: number
+}) {
+  const elementalAttackPercentage = elementalAttackSkill[elementalAttack][0]
+  const elementalAttackFlat = elementalAttackSkill[elementalAttack][1]
+
+  return Math.floor(
+    weaponElement *
+      mPercentage(elementalAttackPercentage) *
+      mPercentage(eleModifierPercentage) +
+      elementalAttackFlat
+  )
 }
 
-export function calculateDamage(
-  effectiveRaw: number,
-  effectiveElemental: number,
-  affinity: number,
-  sharpness: keyof typeof sharpnessRawMultiplier,
-  critBoostLevel: number,
-  critEleLevel: number,
-  motionValue: number,
-  hitzoneRaw: number,
-  hitZoneEle: number
-) {
-  const raw =
-    effectiveRaw *
+export function calculateRawDamage({
+  uiRaw,
+  sharpness,
+  motionValue,
+  hitzoneRaw,
+  criticalBoost = 0,
+  rawMultiplier = 0,
+}: {
+  uiRaw: number
+  sharpness: Sharpness
+  motionValue: number
+  hitzoneRaw: number
+  criticalBoost?: number
+  rawMultiplier?: number
+}) {
+  const rawHit =
+    uiRaw *
     percentage(hitzoneRaw) *
     percentage(motionValue) *
+    mPercentage(rawMultiplier) *
     sharpnessRawMultiplier[sharpness]
 
-  const ele =
-    effectiveElemental *
-    percentage(hitZoneEle) *
-    sharpnessElementalMultiplier[sharpness]
+  return {
+    rawHit,
+    rawCrit: rawHit * criticalBoostSkill[criticalBoost],
+  }
+}
 
-  const isPositiveCrit = affinity >= 0
-
-  const rawCrit =
-    raw * (isPositiveCrit ? criticalBoostSkill[critBoostLevel] : 0.75)
-
-  const eleCrit =
-    ele * (isPositiveCrit ? criticalElementSkill[critEleLevel] : 1)
-
-  const nonCrit = Math.round(raw) + Math.round(ele)
-  const crit = Math.round(rawCrit) + Math.round(eleCrit)
-
-  const absoluteAffinity = Math.abs(affinity)
-  const weightedCrit = percentage(absoluteAffinity) * crit
-  const weightedNonCrit = percentage(100 - absoluteAffinity) * nonCrit
-
-  const average = weightedCrit + weightedNonCrit
+export function calculateElementDamage({
+  uiElement,
+  sharpness,
+  hitzoneEle,
+  criticalElement = 0,
+  eleMultiplier = 0,
+}: {
+  uiElement: number
+  sharpness: Sharpness
+  hitzoneEle: number
+  criticalElement?: number
+  eleMultiplier?: number
+}) {
+  const eleHit =
+    uiElement *
+    percentage(hitzoneEle) *
+    mPercentage(eleMultiplier) *
+    sharpnessElementMultiplier[sharpness]
 
   return {
-    crit,
-    nonCrit,
+    eleHit,
+    eleCrit: eleHit * criticalElementSkill[criticalElement],
+  }
+}
+
+export function calculateDamage({
+  uiRaw,
+  sharpness,
+  motionValue,
+  hitzoneRaw,
+  hitzoneEle,
+  uiElement = 0,
+  affinity = 0,
+  criticalBoost = 0,
+  criticalElement = 0,
+  rawMultiplier = 0,
+  eleMultiplier = 0,
+  brutalStrike,
+  dullingStrike,
+}: {
+  uiRaw: number
+  sharpness: Sharpness
+  motionValue: number
+  hitzoneRaw: number
+  hitzoneEle: number
+  uiElement?: number
+  affinity?: number
+  criticalBoost?: number
+  criticalElement?: number
+  rawMultiplier?: number
+  eleMultiplier?: number
+  brutalStrike?: boolean
+  dullingStrike?: boolean
+}) {
+  const hasDullingStrike =
+    dullingStrike && dullingStrikeSharpnessList.includes(sharpness)
+
+  const { rawHit, rawCrit } = calculateRawDamage({
+    uiRaw,
+    sharpness,
+    motionValue,
+    criticalBoost,
+    hitzoneRaw,
+    rawMultiplier,
+  })
+
+  const brutalStrikeRawCrit = rawHit * 1.5
+  const dullingStrikeRawHit = rawHit * 1.2
+  const negativeRawCrit = rawHit * 0.75
+  const dullingStrikeNegativeRawCrit = rawHit * 0.75 * 1.2
+  const dullingStrikeRawCrit = rawCrit * 1.2
+
+  const { eleHit, eleCrit } = calculateElementDamage({
+    uiElement,
+    sharpness,
+    hitzoneEle,
+    criticalElement,
+    eleMultiplier,
+  })
+
+  const hit = Math.round(rawHit) + Math.round(eleHit)
+  const crit = Math.round(rawCrit) + Math.round(eleCrit)
+  const negativeCrit = Math.round(negativeRawCrit) + Math.round(eleHit)
+  const brutalStrikeCrit = Math.round(brutalStrikeRawCrit) + Math.round(eleHit)
+
+  const dullingStrikeHit = Math.round(dullingStrikeRawHit) + Math.round(eleHit)
+  const dullingStrikeCrit =
+    Math.round(dullingStrikeRawCrit) + Math.round(eleCrit)
+  const dullingStrikeNegativeCrit =
+    Math.round(dullingStrikeNegativeRawCrit) + Math.round(eleHit)
+
+  const positiveAffinity =
+    affinity * (affinity > 0 ? 1 : 0) * (hasDullingStrike ? 0.8 : 1)
+
+  const negativeAffinity =
+    Math.abs(affinity) *
+    (affinity < 0 ? 1 : 0) *
+    (brutalStrike ? 0.75 : 1) *
+    (hasDullingStrike ? 0.8 : 1)
+
+  const brutalStrikeAffinity =
+    Math.abs(affinity) * (affinity < 0 ? 1 : 0) * (brutalStrike ? 0.25 : 0)
+
+  const dullingStrikeCritChance =
+    affinity * (affinity > 0 ? 1 : 0) * (hasDullingStrike ? 0.2 : 0)
+
+  const dullingStrikeHitChance =
+    (100 - Math.abs(affinity)) * (hasDullingStrike ? 0.2 : 0)
+
+  const dullingStrikeNegativeCritChance =
+    Math.abs(affinity) * (affinity < 0 ? 1 : 0) * (hasDullingStrike ? 0.2 : 1)
+
+  const average = calculateWeightedAverage(
+    [
+      [positiveAffinity, crit],
+      [negativeAffinity, negativeCrit],
+      [brutalStrikeAffinity, brutalStrikeCrit],
+      [dullingStrikeHitChance, dullingStrikeHit],
+      [dullingStrikeCritChance, dullingStrikeCrit],
+      [dullingStrikeNegativeCritChance, dullingStrikeNegativeCrit],
+    ],
+    hit
+  )
+
+  return {
     average,
-    raw,
-    ele,
-    rawCrit,
-    eleCrit,
+    hit,
+    crit: affinity >= 0 ? crit : negativeCrit,
+    rawHit,
+    eleHit,
+    rawCrit: affinity >= 0 ? rawCrit : negativeRawCrit,
+    eleCrit: affinity >= 0 ? eleCrit : eleHit,
+    brutalStrikeCrit,
+    brutalStrikeRawCrit,
+    dullingStrikeHit,
+    dullingStrikeRawHit,
+    dullingStrikeRawCrit:
+      affinity >= 0 ? dullingStrikeRawCrit : dullingStrikeNegativeRawCrit,
+    dullingStrikeCrit:
+      affinity >= 0 ? dullingStrikeCrit : dullingStrikeNegativeCrit,
   }
 }
 
@@ -108,32 +297,32 @@ export const elementalAttackSkill = [
 ]
 
 export type Sharpness =
-  | 'red'
-  | 'orange'
-  | 'yellow'
-  | 'green'
-  | 'blue'
-  | 'white'
-  | 'ranged'
+  | 'Red'
+  | 'Orange'
+  | 'Yellow'
+  | 'Green'
+  | 'Blue'
+  | 'White'
+  | 'Ranged'
 
-export const sharpnessRawMultiplier = {
-  white: 1.32,
-  blue: 1.2,
-  green: 1.05,
-  yellow: 1,
-  orange: 0.75,
-  red: 0.5,
-  ranged: 1,
+export const sharpnessRawMultiplier: { [K in Sharpness]: number } = {
+  White: 1.32,
+  Blue: 1.2,
+  Green: 1.05,
+  Yellow: 1,
+  Orange: 0.75,
+  Red: 0.5,
+  Ranged: 1,
 } as const
 
-export const sharpnessElementalMultiplier: { [K in Sharpness]: number } = {
-  white: 1.15,
-  blue: 1.0625,
-  green: 1,
-  yellow: 0.75,
-  orange: 0.5,
-  red: 0.25,
-  ranged: 1,
+export const sharpnessElementMultiplier: { [K in Sharpness]: number } = {
+  White: 1.15,
+  Blue: 1.0625,
+  Green: 1,
+  Yellow: 0.75,
+  Orange: 0.5,
+  Red: 0.25,
+  Ranged: 1,
 } as const
 
 export const criticalBoostSkill = [1.25, 1.3, 1.35, 1.4] as const
@@ -142,7 +331,7 @@ export const weaknessExploitSkill = [0, 15, 30, 50] as const
 
 export const criticalElementSkill = [1, 1.05, 1.1, 1.15] as const
 
-export const demondrug = {
+export const demondrugTypes = {
   None: 0,
   Demondrug: 5,
   'Mega Demondrug': 7,
@@ -150,7 +339,32 @@ export const demondrug = {
 
 export const bludgeonerSkill: [Sharpness[], number][] = [
   [[], 0],
-  [['yellow'], 5],
-  [['yellow'], 10],
-  [['yellow', 'green'], 10],
+  [['Red', 'Orange', 'Yellow'], 5],
+  [['Red', 'Orange', 'Yellow'], 10],
+  [['Red', 'Orange', 'Yellow', 'Green'], 10],
+]
+
+export const maximumMightSkill = [0, 10, 20, 30] as const
+
+export const latentPowerSkill = [0, 10, 20, 30, 40, 50] as const
+
+/** [attack, affinity] */
+export const agitatorSkill = [
+  [0, 0],
+  [4, 3],
+  [8, 5],
+  [12, 7],
+  [16, 10],
+  [20, 15],
+]
+
+export const mightyGuardSkill = [0, 5, 10, 15] as const
+
+export const ammoTypeUpSkill = [0, 5, 10, 20] as const
+
+export const dullingStrikeSharpnessList: Sharpness[] = [
+  'Red',
+  'Orange',
+  'Yellow',
+  'Green',
 ]
