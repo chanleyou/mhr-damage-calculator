@@ -32,7 +32,9 @@ export function calculateUIRaw({
   powertalon,
   mightSeed,
   demonPowder,
+  dangoBooster,
   demondrug = 'None',
+  powerDrum,
   agitator = 0,
   mightyGuard = 0,
 }: {
@@ -46,39 +48,34 @@ export function calculateUIRaw({
   powertalon?: boolean
   mightSeed?: boolean
   demonPowder?: boolean
+  dangoBooster?: boolean
   demondrug?: keyof typeof demondrugTypes
+  powerDrum?: boolean
   mightyGuard?: number
   agitator?: number
 }) {
-  const attackBoostPercentage = attackBoostSkill[attackBoost][0]
-  const attackBoostFlat = attackBoostSkill[attackBoost][1]
-  const bludgeonerPercentage = bludgeonerSkill[bludgeoner][0].includes(
-    sharpness
-  )
-    ? bludgeonerSkill[bludgeoner][1]
-    : 0
-
-  const mightyGuardPercentage = mightyGuardSkill[mightyGuard]
+  const percentageRaw = [
+    attackBoostSkill[attackBoost][0],
+    bludgeonerSkill[bludgeoner][0].includes(sharpness)
+      ? bludgeonerSkill[bludgeoner][1]
+      : 0,
+    mightyGuardSkill[mightyGuard],
+    powerDrum ? 5 : 0,
+    rawModifierPercentage,
+  ].reduce((raw, b) => raw * mPercentage(b), weaponRaw)
 
   const flatBonuses =
+    attackBoostSkill[attackBoost][1] +
     agitatorSkill[agitator][0] +
     (powercharm ? 6 : 0) +
     (powertalon ? 9 : 0) +
     (mightSeed ? 10 : 0) +
     (demonPowder ? 10 : 0) +
-    demondrugTypes[demondrug]
+    (dangoBooster ? 9 : 0) +
+    demondrugTypes[demondrug] +
+    rawFlatBonus
 
-  return Math.floor(
-    weaponRaw *
-      mPercentage(attackBoostPercentage) *
-      mPercentage(bludgeonerPercentage) *
-      mPercentage(mightyGuardPercentage) *
-      mPercentage(rawModifierPercentage) +
-      attackBoostFlat +
-      rawFlatBonus +
-      flatBonuses +
-      0.1
-  )
+  return Math.floor(percentageRaw + flatBonuses + 0.1)
 }
 
 export function calculateUIElement({

@@ -62,11 +62,14 @@ export default function Main() {
   const [powercharm, setPowercharm] = useState(true)
   const [powertalon, setPowertalon] = useState(true)
 
+  const [dangoBooster, setDangoBooster] = useState(false)
   const [mightSeed, setMightSeed] = useState(false)
   const [demonPowder, setDemonPowder] = useState(false)
   const [demondrug, setDemondrug] = useState<keyof typeof demondrugTypes>(
     'None'
   )
+  const [powerDrum, setPowerDrum] = useState(false)
+  const [rousingRoar, setRousingRoar] = useState(false)
 
   const [miscAb, setMiscAb] = useState(0)
   const [miscAffinity, setMiscAffinity] = useState(0)
@@ -89,8 +92,10 @@ export default function Main() {
       powercharm,
       powertalon,
       mightSeed,
+      dangoBooster,
       demonPowder,
       demondrug,
+      powerDrum,
       agitator,
     })
   }, [
@@ -103,8 +108,10 @@ export default function Main() {
     powercharm,
     powertalon,
     mightSeed,
+    dangoBooster,
     demonPowder,
     demondrug,
+    powerDrum,
     agitator,
   ])
 
@@ -127,7 +134,8 @@ export default function Main() {
       miscAffinity +
       maximumMightBonus +
       latentPowerBonus +
-      agitatorBonus
+      agitatorBonus +
+      (rousingRoar ? 30 : 0)
 
     return aff >= 0 ? Math.min(100, aff) : Math.max(-100, aff)
   }, [
@@ -139,6 +147,7 @@ export default function Main() {
     maximumMight,
     latentPower,
     agitator,
+    rousingRoar,
   ])
 
   const {
@@ -215,8 +224,7 @@ export default function Main() {
             setSharpness(i as keyof typeof sharpnessRawMultiplier)
           }
         />
-        Ramp-Up Skills
-        <div style={{ height: '8px' }} />
+        <h4>{'Ramp-Up Skills'}</h4>
         <Checkbox
           label="Brutal Strike"
           value={brutalStrike}
@@ -305,6 +313,17 @@ export default function Main() {
           value={maximumMight.toString()}
           onChangeValue={(v) => setMaximumMight(parseInt(v))}
         />
+        <h4>{'Palico'}</h4>
+        <Checkbox
+          label="Power Drum"
+          value={powerDrum}
+          onChangeValue={setPowerDrum}
+        />
+        <Checkbox
+          label="Rousing Roar"
+          value={rousingRoar}
+          onChangeValue={setRousingRoar}
+        />
       </Box>
       <Box header="Others">
         <Checkbox
@@ -316,6 +335,11 @@ export default function Main() {
           label="Powertalon"
           value={powertalon}
           onChangeValue={setPowertalon}
+        />
+        <Checkbox
+          label="Dango Booster"
+          value={dangoBooster}
+          onChangeValue={setDangoBooster}
         />
         <Checkbox
           label="Might Seed"
@@ -340,7 +364,7 @@ export default function Main() {
           label="Misc. Attack Bonus (Flat)"
           value={miscAb}
           onChangeValue={setMiscAb}
-          note="e.g. Butterflame"
+          note="e.g. Petalace, Butterflame"
         />
         <NumberInput
           label="Misc. Affinity"

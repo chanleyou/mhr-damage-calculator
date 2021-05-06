@@ -35,6 +35,23 @@ test('Mighty Guard + Bludgeoner', () => {
   expect(calculateUIRaw({ ...base, mightyGuard: 1 })).toBe(286)
 })
 
+test('Dango Booster, Palico Power Drum', () => {
+  // mizutsune SA
+  const base = {
+    weaponRaw: 198,
+    attackBoost: 7,
+    sharpness: 'White',
+    powercharm: true,
+    powertalon: true,
+  } as const
+
+  expect(calculateUIRaw(base)).toBe(242)
+  expect(calculateUIRaw({ ...base, dangoBooster: true })).toBe(251)
+  expect(calculateUIRaw({ ...base, dangoBooster: true, powerDrum: true })).toBe(
+    262
+  )
+})
+
 test('296 raw, Green, 32 mv (diablos SA sword neutral X)', () => {
   const params = {
     uiRaw: 296,
@@ -82,6 +99,27 @@ test('rounding: 113 atk, 23 ele 24 mv (gl poke) at ele atk 0/1/3', () => {
 
   expect(calculateDamage({ ...params, uiElement: 28 }).hit).toBe(36)
   expect(calculateDamage({ ...params, uiElement: 28 }).crit).toBe(45)
+})
+
+test('Dulling Strike', () => {
+  const params = {
+    uiRaw: 255,
+    sharpness: 'Green',
+    affinity: -15,
+    motionValue: 22,
+    hitzoneRaw: 100,
+    hitzoneEle: 30,
+  } as const
+
+  expect(calculateDamage(params).hit).toBe(59)
+  expect(calculateDamage(params).dullingStrikeHit).toBe(71)
+  expect(calculateDamage(params).crit).toBe(44)
+  expect(calculateDamage(params).dullingStrikeCrit).toBe(53)
+
+  const positiveAffinityParams = { ...params, affinity: 35 }
+
+  expect(calculateDamage(positiveAffinityParams).crit).toBe(74)
+  expect(calculateDamage(positiveAffinityParams).dullingStrikeCrit).toBe(88)
 })
 
 export {}
