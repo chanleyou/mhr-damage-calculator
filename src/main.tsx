@@ -80,6 +80,7 @@ export default function Main() {
   const [rawModifierPercentage, setRawModifierPercentage] = useState(0)
   const [rawMultiplier, setRawMultiplier] = useState(0)
   const [eleMultiplier, setEleMultiplier] = useState(0)
+  const [cannotCrit, setCannotCrit] = useState(false)
 
   const uiRaw = useMemo(() => {
     return calculateUIRaw({
@@ -120,6 +121,7 @@ export default function Main() {
   }, [weaponElement, elementalAttack])
 
   const affinity = useMemo(() => {
+    if (cannotCrit) return 0
     const wexBonus = hitzoneRaw >= 45 ? weaknessExploitSkill[wex] : 0
     const criticalEyeBonus = criticalEyeSkill[criticalEye]
 
@@ -139,6 +141,7 @@ export default function Main() {
 
     return aff >= 0 ? Math.min(100, aff) : Math.max(-100, aff)
   }, [
+    cannotCrit,
     weaponAffinity,
     criticalEye,
     wex,
@@ -407,47 +410,85 @@ export default function Main() {
           onChangeValue={setEleMultiplier}
           note="e.g. Greatsword charge attacks"
         />
+        <Checkbox
+          label="Can't Crit"
+          value={cannotCrit}
+          onChangeValue={setCannotCrit}
+        />
       </Box>
       <Box header="Attributes">
         <NumberInput label="Raw" value={toFixed(uiRaw)} disabled />
         <NumberInput label="Element" value={toFixed(uiElement)} disabled />
         <NumberInput label="Affinity (%)" value={affinity} disabled />
+        {/* <NumberInput label="Effective Raw" value={toFixed(uiRaw)} disabled />
+        <NumberInput
+          label="Effective Element"
+          value={toFixed(uiElement)}
+          disabled
+        /> */}
       </Box>
-      <Box header="Results">
-        <div>
-          <h3>Average: {toFixed(average)}</h3>
-        </div>
-        <br />
-        <div>
-          Hit: {toFixed(hit)} ({toFixed(rawHit)} + {toFixed(eleHit)})
-        </div>
-        <div>
-          Critical: {toFixed(crit)} ({toFixed(rawCrit)} + {toFixed(eleCrit)})
+      <Box header="Damage">
+        <h4>
+          <strong>Average</strong>
+        </h4>
+        <NumberInput bold value={toFixed(average)} disabled />
+        <h4>Totals (Rounded)</h4>
+        <div className="row">
+          <NumberInput label="Hit" value={toFixed(hit)} disabled />
+          <NumberInput label="Critical" value={toFixed(crit)} disabled />
         </div>
         {brutalStrike && (
-          <div
-            style={{
-              textDecoration: affinity >= 0 ? 'line-through' : 'none',
-            }}
-          >
-            <br />
-            Brutal Strike: {toFixed(brutalStrikeCrit)} (
-            {toFixed(brutalStrikeRawCrit)} + {toFixed(eleCrit)})
-          </div>
+          <NumberInput
+            label="Brutal Strike"
+            value={toFixed(brutalStrikeCrit)}
+            disabled
+          />
         )}
         {dullingStrike && (
-          <>
-            <br />
-            <div>
-              Dulling Strike Hit: {toFixed(dullingStrikeHit)} (
-              {toFixed(dullingStrikeRawHit)} + {toFixed(eleHit)})
-            </div>
-            <div>
-              Dulling Strike Critical: {toFixed(dullingStrikeCrit)} (
-              {toFixed(dullingStrikeRawCrit)} + {toFixed(eleCrit)})
-            </div>
-          </>
+          <div className="row">
+            <NumberInput
+              label="Dulling Hit"
+              value={toFixed(dullingStrikeHit)}
+              disabled
+            />
+            <NumberInput
+              label="Dulling Critical"
+              value={toFixed(dullingStrikeCrit)}
+              disabled
+            />
+          </div>
         )}
+        <h4>Raw</h4>
+        <div className="row">
+          <NumberInput label="Hit" value={toFixed(rawHit)} disabled />
+          <NumberInput label="Critical" value={toFixed(rawCrit)} disabled />
+        </div>
+        {brutalStrike && (
+          <NumberInput
+            label="Brutal Strike"
+            value={toFixed(brutalStrikeRawCrit)}
+            disabled
+          />
+        )}
+        {dullingStrike && (
+          <div className="row">
+            <NumberInput
+              label="Dulling Hit"
+              value={toFixed(dullingStrikeRawHit)}
+              disabled
+            />
+            <NumberInput
+              label="Dulling Critical"
+              value={toFixed(dullingStrikeRawCrit)}
+              disabled
+            />
+          </div>
+        )}
+        <h4>Element</h4>
+        <div className="row">
+          <NumberInput label="Hit" value={toFixed(eleHit)} disabled />
+          <NumberInput label="Critical" value={toFixed(eleCrit)} disabled />
+        </div>
       </Box>
     </div>
   )

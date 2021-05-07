@@ -87,6 +87,7 @@ export function calculateUIElement({
   elementalAttack?: number
   eleModifierPercentage?: number
 }) {
+  if (weaponElement === 0) return 0
   const elementalAttackPercentage = elementalAttackSkill[elementalAttack][0]
   const elementalAttackFlat = elementalAttackSkill[elementalAttack][1]
 

@@ -50,8 +50,7 @@ body {
   background-color: #f0f0f0;
 }
 
-.number-input label.note,
-.dropdown label.note {
+label.note {
   margin-top: 2px;
   font-size: 12px;
   font-style: oblique;
@@ -68,4 +67,18 @@ body {
 
 .checkbox {
   padding: 4px;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.row .number-input {
+  flex: 1;
+}
+
+.row *:first-child {
+  margin-right: 8px;
 }

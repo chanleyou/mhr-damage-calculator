@@ -6,6 +6,7 @@ type Props = {
   label?: string
   disabled?: boolean
   note?: string
+  bold?: boolean
 }
 
 export default function NumberInput({
@@ -14,11 +15,13 @@ export default function NumberInput({
   onChangeValue,
   disabled,
   note,
+  bold,
 }: Props) {
   return (
     <div className="number-input">
       <label>{label}</label>
       <input
+        style={{ fontWeight: bold ? 'bold' : 'normal' }}
         type="number"
         value={value}
         onChange={(e) => {
