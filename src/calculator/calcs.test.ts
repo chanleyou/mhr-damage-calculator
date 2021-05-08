@@ -122,4 +122,22 @@ test('Dulling Strike', () => {
   expect(calculateDamage(positiveAffinityParams).dullingStrikeCrit).toBe(88)
 })
 
+test('Element Exploit', () => {
+  const params = {
+    uiRaw: 183,
+    uiElement: 36,
+    sharpness: 'Green',
+    affinity: 10,
+    motionValue: 22,
+    hitzoneRaw: 100,
+    hitzoneEle: 30,
+  } as const
+
+  expect(calculateDamage(params).hit).toBe(53)
+  expect(calculateDamage(params).crit).toBe(64)
+
+  expect(calculateDamage({ ...params, elementExploit: true }).hit).toBe(56)
+  expect(calculateDamage({ ...params, elementExploit: true }).crit).toBe(67)
+})
+
 export {}

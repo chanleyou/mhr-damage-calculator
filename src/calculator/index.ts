@@ -133,17 +133,20 @@ export function calculateElementDamage({
   hitzoneEle,
   criticalElement = 0,
   eleMultiplier = 0,
+  elementExploit,
 }: {
   uiElement: number
   sharpness: Sharpness
   hitzoneEle: number
   criticalElement?: number
   eleMultiplier?: number
+  elementExploit?: boolean
 }) {
   const eleHit =
     uiElement *
     percentage(hitzoneEle) *
     mPercentage(eleMultiplier) *
+    (hitzoneEle >= 25 && elementExploit ? 1.3 : 1) *
     sharpnessElementMultiplier[sharpness]
 
   return {
@@ -166,6 +169,7 @@ export function calculateDamage({
   eleMultiplier = 0,
   brutalStrike,
   dullingStrike,
+  elementExploit,
 }: {
   uiRaw: number
   sharpness: Sharpness
@@ -180,6 +184,7 @@ export function calculateDamage({
   eleMultiplier?: number
   brutalStrike?: boolean
   dullingStrike?: boolean
+  elementExploit?: boolean
 }) {
   const hasDullingStrike =
     dullingStrike && dullingStrikeSharpnessList.includes(sharpness)
@@ -205,6 +210,7 @@ export function calculateDamage({
     hitzoneEle,
     criticalElement,
     eleMultiplier,
+    elementExploit,
   })
 
   const hit = Math.round(rawHit) + Math.round(eleHit)

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react'
+import React, { useMemo, useState } from 'react'
 import { NumberInput, Dropdown, Box, Checkbox } from './components'
 import {
   calculateDamage,
@@ -22,27 +22,10 @@ export default function Main() {
   const [weaponAffinity, setWeaponAffinity] = useState(0)
   const [sharpness, setSharpness] = useState<Sharpness>('White')
 
-  // ramp-up skills
-  const [dullingStrike, setDullingStrike] = useState(false)
-  const [brutalStrike, setBrutalStrike] = useState(false)
-  // const [elementExploit, setElementExploit] = useState(false)
-
-  const prevStrike = useRef<'dulling' | 'brutal'>()
-
-  useEffect(() => {
-    if (dullingStrike && brutalStrike) {
-      switch (prevStrike.current) {
-        case 'dulling':
-          setDullingStrike(false)
-          prevStrike.current = 'brutal'
-          break
-        case 'brutal':
-          setBrutalStrike(false)
-          prevStrike.current = 'dulling'
-      }
-    } else if (dullingStrike) prevStrike.current = 'dulling'
-    else if (brutalStrike) prevStrike.current = 'brutal'
-  }, [dullingStrike, brutalStrike])
+  // rampage skills
+  const [rampageSkill, setRampageSkill] = useState<
+    'brutalStrike' | 'dullingStrike' | 'elementExploit'
+  >()
 
   // skills
   const [attackBoost, setAttackBoost] = useState(0)
@@ -180,11 +163,11 @@ export default function Main() {
       criticalElement,
       rawMultiplier,
       eleMultiplier,
-      brutalStrike,
-      dullingStrike,
+      brutalStrike: rampageSkill === 'brutalStrike',
+      dullingStrike: rampageSkill === 'dullingStrike',
+      elementExploit: rampageSkill === 'elementExploit',
     })
   }, [
-    dullingStrike,
     uiRaw,
     sharpness,
     motionValue,
@@ -196,7 +179,7 @@ export default function Main() {
     criticalElement,
     rawMultiplier,
     eleMultiplier,
-    brutalStrike,
+    rampageSkill,
   ])
 
   return (
@@ -227,22 +210,32 @@ export default function Main() {
             setSharpness(i as keyof typeof sharpnessRawMultiplier)
           }
         />
-        <h4>{'Ramp-Up Skills'}</h4>
+        <h4>{'Rampage Skills'}</h4>
         <Checkbox
           label="Brutal Strike"
-          value={brutalStrike}
-          onChangeValue={setBrutalStrike}
+          value={rampageSkill === 'brutalStrike'}
+          onChangeValue={() => {
+            if (rampageSkill === 'brutalStrike') setRampageSkill(undefined)
+            else setRampageSkill('brutalStrike')
+          }}
         />
         <Checkbox
           label="Dulling Strike"
-          value={dullingStrike}
-          onChangeValue={setDullingStrike}
+          value={rampageSkill === 'dullingStrike'}
+          onChangeValue={() => {
+            if (rampageSkill === 'dullingStrike') setRampageSkill(undefined)
+            else setRampageSkill('dullingStrike')
+          }}
         />
-        {/* <Checkbox
+        <Checkbox
           label="Element Exploit"
-          value={elementExploit}
-          onChangeValue={setElementExploit}
-        /> */}
+          value={rampageSkill === 'elementExploit'}
+          onChangeValue={() => {
+            if (rampageSkill === 'elementExploit') setRampageSkill(undefined)
+            else setRampageSkill('elementExploit')
+          }}
+          note="Activates if element hitzone >=25"
+        />
       </Box>
       <Box header="Skills">
         <Dropdown
@@ -437,14 +430,14 @@ export default function Main() {
           <NumberInput label="Hit" value={toFixed(hit)} disabled />
           <NumberInput label="Critical" value={toFixed(crit)} disabled />
         </div>
-        {brutalStrike && (
+        {rampageSkill === 'brutalStrike' && (
           <NumberInput
             label="Brutal Strike"
             value={toFixed(brutalStrikeCrit)}
             disabled
           />
         )}
-        {dullingStrike && (
+        {rampageSkill === 'dullingStrike' && (
           <div className="row">
             <NumberInput
               label="Dulling Hit"
@@ -463,14 +456,14 @@ export default function Main() {
           <NumberInput label="Hit" value={toFixed(rawHit)} disabled />
           <NumberInput label="Critical" value={toFixed(rawCrit)} disabled />
         </div>
-        {brutalStrike && (
+        {rampageSkill === 'brutalStrike' && (
           <NumberInput
             label="Brutal Strike"
             value={toFixed(brutalStrikeRawCrit)}
             disabled
           />
         )}
-        {dullingStrike && (
+        {rampageSkill === 'dullingStrike' && (
           <div className="row">
             <NumberInput
               label="Dulling Hit"
