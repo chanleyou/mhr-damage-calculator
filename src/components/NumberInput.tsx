@@ -21,6 +21,7 @@ export default function NumberInput({
     <div className="number-input">
       <label>{label}</label>
       <input
+        size={10}
         style={{ fontWeight: bold ? 'bold' : 'normal' }}
         type="number"
         value={value}

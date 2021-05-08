@@ -1,13 +1,13 @@
-import React from "react";
+import React from 'react'
 
 type Props = {
-  options: (string | number)[];
-  onChangeValue: (value: string) => void;
-  value?: string;
-  label?: string;
-  placeholder?: string;
-  note?: string;
-};
+  options: (string | number)[]
+  onChangeValue: (value: string) => void
+  value?: string
+  label?: string
+  placeholder?: string
+  note?: string
+}
 
 export default function Dropdown({
   options,
@@ -27,5 +27,5 @@ export default function Dropdown({
       </select>
       {note && <label className="note">{note}</label>}
     </div>
-  );
+  )
 }

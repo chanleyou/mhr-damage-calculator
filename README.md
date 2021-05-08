@@ -7,6 +7,11 @@
 
 ## Changelog
 
+### 2021-05-08
+
+- Added Element Exploit
+- Fixed number input size overflowing
+
 ### 2021-05-07
 
 - Added "Can't Crit" toggle
