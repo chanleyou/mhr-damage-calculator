@@ -86,8 +86,8 @@ export default function Main() {
   const [hitzoneRaw, setHitzoneRaw] = useState(100)
   const [hitzoneEle, setHitzoneEle] = useState(30)
   const [rawModifierPercentage, setRawModifierPercentage] = useState(0)
-  const [rawMultiplier, setRawMultiplier] = useState(0)
-  const [eleMultiplier, setEleMultiplier] = useState(0)
+  const [miscRawMultiplier, setMiscRawMultiplier] = useState(0)
+  const [miscEleMultiplier, setMiscEleMultiplier] = useState(0)
   const [cannotCrit, setCannotCrit] = useState(false)
 
   const uiRaw = useMemo(() => {
@@ -190,12 +190,12 @@ export default function Main() {
       affinity,
       criticalBoost,
       criticalElement,
-      rawMultiplier,
+      miscRawMultiplier,
       rawMultipliers: [
         weaponType === 'Ranged' ? shotTypeUpSkill[shotTypeUp] : 0,
         weaponType === 'Ranged' ? rapidFireUpSkill[rapidFireUp] : 0,
       ],
-      eleMultiplier,
+      miscEleMultiplier,
       eleMultipliers: [
         weaponType === 'Ranged' ? rapidFireUpSkill[rapidFireUp] : 0,
       ],
@@ -214,8 +214,8 @@ export default function Main() {
     affinity,
     criticalBoost,
     criticalElement,
-    rawMultiplier,
-    eleMultiplier,
+    miscRawMultiplier,
+    miscEleMultiplier,
     rampageSkill,
     shotTypeUp,
     rapidFireUp,
@@ -282,7 +282,7 @@ export default function Main() {
             if (rampageSkill === 'elementExploit') setRampageSkill(undefined)
             else setRampageSkill('elementExploit')
           }}
-          note="Activates if element hitzone >=25"
+          note="If element hitzone >= 25"
         />
       </Box>
       <Box header="Skills">
@@ -309,9 +309,8 @@ export default function Main() {
           label="Weakness Exploit"
           value={wex.toString()}
           onChangeValue={(v) => setWex(parseInt(v))}
-          note="Activates if raw hitzone >=45"
+          note="If raw hitzone >= 45"
         />
-        {renderBludgeoner}
         <Dropdown
           options={Object.keys(criticalBoostSkill)}
           label="Critical Boost"
@@ -324,9 +323,7 @@ export default function Main() {
           value={criticalElement.toString()}
           onChangeValue={(v) => setCriticalElement(parseInt(v))}
         />
-      </Box>
-      {weaponType === 'Ranged' && (
-        <Box header="Ranged">
+        {weaponType === 'Ranged' ? (
           <>
             <Dropdown
               options={[0, 1, 2, 3]}
@@ -342,8 +339,10 @@ export default function Main() {
               onChangeValue={(v) => setRapidFireUp(parseInt(v))}
             />
           </>
-        </Box>
-      )}
+        ) : (
+          renderBludgeoner
+        )}
+      </Box>
       <Box header="Skills 2">
         <Dropdown
           label="Agitator"
@@ -429,6 +428,12 @@ export default function Main() {
           note="e.g. Petalace, Butterflame"
         />
         <NumberInput
+          label="Misc. Attack Bonus (%)"
+          value={rawModifierPercentage}
+          onChangeValue={setRawModifierPercentage}
+          note="e.g. Kinsect Buff"
+        />
+        <NumberInput
           label="Misc. Affinity"
           value={miscAffinity}
           onChangeValue={setMiscAffinity}
@@ -452,27 +457,22 @@ export default function Main() {
           onChangeValue={setHitzoneEle}
         />
         <NumberInput
-          label="Raw Attack Modifier (Percentage)"
-          value={rawModifierPercentage}
-          onChangeValue={setRawModifierPercentage}
-          note="e.g. Kinsect Buff"
-        />
-        <NumberInput
           label="Raw Damage Multiplier (%)"
-          value={rawMultiplier}
-          onChangeValue={setRawMultiplier}
+          value={miscRawMultiplier}
+          onChangeValue={setMiscRawMultiplier}
           note="e.g. SA Power Phial"
         />
         <NumberInput
           label="Element Damage Multiplier (%)"
-          value={eleMultiplier}
-          onChangeValue={setEleMultiplier}
-          note="e.g. Greatsword charge attacks"
+          value={miscEleMultiplier}
+          onChangeValue={setMiscEleMultiplier}
+          note="e.g. Greatsword Charge Attack"
         />
         <Checkbox
           label="Can't Crit"
           value={cannotCrit}
           onChangeValue={setCannotCrit}
+          note="e.g. SA Phial Explosion"
         />
       </Box>
       <Box header="Attributes">
@@ -491,7 +491,8 @@ export default function Main() {
           <strong>Average</strong>
         </h4>
         <NumberInput bold value={toFixed(average)} disabled />
-        <h4>Totals (Rounded)</h4>
+        <div style={{ height: '8px' }} />
+        <h4>Rounded Totals</h4>
         <div className="row">
           <NumberInput label="Hit" value={toFixed(hit)} disabled />
           <NumberInput label="Critical" value={toFixed(crit)} disabled />
@@ -517,6 +518,7 @@ export default function Main() {
             />
           </div>
         )}
+        <div style={{ height: '8px' }} />
         <h4>Raw</h4>
         <div className="row">
           <NumberInput label="Hit" value={toFixed(rawHit)} disabled />

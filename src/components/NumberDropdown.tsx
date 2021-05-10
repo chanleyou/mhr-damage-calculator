@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Dropdown } from '.'
 
 type Props<T> = {
   skill: T[]
@@ -6,24 +7,17 @@ type Props<T> = {
   note?: string
 }
 
-export default function Dropdown<T>({ skill, label, note }: Props<T>) {
+export default function useNumberDropdown<T>({ skill, label, note }: Props<T>) {
   const options = Object.keys(skill)
-
   const [value, setValue] = useState(parseInt(options[0]))
 
   return [
     value,
-    <div className="dropdown">
-      <label>{label}</label>
-      <select
-        onChange={(e) => setValue(parseInt(e.target.value))}
-        value={value}
-      >
-        {options.map((option) => (
-          <option key={option}>{option}</option>
-        ))}
-      </select>
-      {note && <label className="note">{note}</label>}
-    </div>,
+    <Dropdown
+      label={label}
+      options={options}
+      onChangeValue={(v) => setValue(parseInt(v))}
+      note={note}
+    />,
   ] as const
 }

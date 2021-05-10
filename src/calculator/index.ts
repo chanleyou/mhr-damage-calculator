@@ -124,7 +124,7 @@ export function calculateRawDamage({
   motionValue,
   hitzoneRaw,
   criticalBoost = 0,
-  rawMultiplier = 0,
+  miscRawMultiplier = 0,
   rawMultipliers = [],
 }: {
   uiRaw: number
@@ -132,14 +132,14 @@ export function calculateRawDamage({
   motionValue: number
   hitzoneRaw: number
   criticalBoost?: number
-  rawMultiplier?: number
+  miscRawMultiplier?: number
   rawMultipliers?: number[]
 }) {
   const rawHit =
     uiRaw *
     percentage(hitzoneRaw) *
     percentage(motionValue) *
-    [...rawMultipliers, rawMultiplier].reduce(
+    [...rawMultipliers, miscRawMultiplier].reduce(
       (acc, n) => acc * mPercentage(n),
       1
     ) *
@@ -156,22 +156,22 @@ export function calculateElementDamage({
   sharpness,
   hitzoneEle,
   criticalElement = 0,
-  eleMultiplier = 0,
   elementExploit,
+  miscEleMultiplier = 0,
   eleMultipliers = [],
 }: {
   uiElement: number
   sharpness: Sharpness
   hitzoneEle: number
   criticalElement?: number
-  eleMultiplier?: number
+  miscEleMultiplier?: number
   elementExploit?: boolean
   eleMultipliers?: number[]
 }) {
   const eleHit =
     uiElement *
     percentage(hitzoneEle) *
-    [...eleMultipliers, eleMultiplier].reduce(
+    [...eleMultipliers, miscEleMultiplier].reduce(
       (acc, n) => acc * mPercentage(n),
       1
     ) *
@@ -194,8 +194,8 @@ export function calculateDamage({
   affinity = 0,
   criticalBoost = 0,
   criticalElement = 0,
-  rawMultiplier = 0,
-  eleMultiplier = 0,
+  miscRawMultiplier = 0,
+  miscEleMultiplier = 0,
   brutalStrike,
   dullingStrike,
   elementExploit,
@@ -211,8 +211,8 @@ export function calculateDamage({
   affinity?: number
   criticalBoost?: number
   criticalElement?: number
-  rawMultiplier?: number
-  eleMultiplier?: number
+  miscRawMultiplier?: number
+  miscEleMultiplier?: number
   brutalStrike?: boolean
   dullingStrike?: boolean
   elementExploit?: boolean
@@ -228,7 +228,7 @@ export function calculateDamage({
     motionValue,
     criticalBoost,
     hitzoneRaw,
-    rawMultiplier,
+    miscRawMultiplier,
     rawMultipliers,
   })
 
@@ -243,7 +243,7 @@ export function calculateDamage({
     sharpness,
     hitzoneEle,
     criticalElement,
-    eleMultiplier,
+    miscEleMultiplier,
     eleMultipliers,
     elementExploit,
   })

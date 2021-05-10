@@ -1,5 +1,5 @@
 @import 'reset.css';
-@import 'https://fonts.googleapis.com/css?family=Inter';
+@import 'https://fonts.googleapis.com/css?family=Inter&family=Roboto+Mono';
 
 body {
   font-family: Inter;
@@ -7,20 +7,38 @@ body {
   background-color: #efefef;
 }
 
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: space-between;
+}
+
+.navbar {
+  margin: 0px 12px 12px 12px;
+  padding: 16px;
+  background-color: #fff;
+  box-shadow: 2px 2px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-flow: row-reverse nowrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
 .main {
   display: flex;
   flex-flow: row wrap;
-  padding: 16px 0 0 16px;
+  padding: 12px 0 0 12px;
 }
 
 .box {
   padding: 16px;
-  border-radius: 8px;
   background-color: #fff;
   box-shadow: 2px 2px rgba(0, 0, 0, 0.15);
-  margin-bottom: 16px;
-  margin-right: 16px;
+  margin: 0 12px 12px 0;
   flex-grow: 1;
+  display: flex;
+  flex-flow: column;
 }
 
 .number-input,
@@ -38,13 +56,21 @@ body {
 }
 
 .number-input input,
+.number-input div,
 .dropdown select {
   border: none;
   border-bottom: 1px solid #000;
   padding: 4px;
   font-size: 16px;
+  min-width: 8ch;
 }
 
+.number-input div.disabled,
+.number-input input {
+  font-family: Roboto Mono, monospace;
+}
+
+.number-input div.disabled,
 .number-input input:disabled,
 .dropdown select:disabled {
   background-color: #f0f0f0;
@@ -62,11 +88,14 @@ label.note {
 
 .box h4 {
   font-weight: normal;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .checkbox {
+  display: flex;
+  align-items: center;
   padding: 4px;
+  margin-bottom: 4px;
 }
 
 .row {

@@ -17,16 +17,14 @@ export default function Checkbox({
 }: Props) {
   return (
     <div className="checkbox">
-      <div>
-        <input
-          type="checkbox"
-          checked={value}
-          onChange={(e) => onChangeValue(e.target.checked)}
-          disabled={disabled}
-        />
-        <label onClick={() => onChangeValue(!value)}>{label}</label>
-      </div>
-      {note && <label className="note">{note}</label>}
+      <input
+        type="checkbox"
+        checked={value}
+        onChange={(e) => onChangeValue(e.target.checked)}
+        disabled={disabled}
+      />
+      <label onClick={() => onChangeValue(!value)}>{label}</label>
+      {note && <label className="note">({note})</label>}
     </div>
   )
 }
