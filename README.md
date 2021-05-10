@@ -10,6 +10,7 @@
 ### 2021-05-10
 
 - Added Peak Performance and Offensive Guard
+- Basic ranged support (Shot Type Up, Rapid Fire Up)
 
 ### 2021-05-08
 

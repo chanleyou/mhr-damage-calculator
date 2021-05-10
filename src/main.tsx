@@ -1,11 +1,18 @@
 import React, { useMemo, useState } from 'react'
-import { NumberInput, Dropdown, Box, Checkbox } from './components'
+import {
+  NumberInput,
+  Dropdown,
+  Box,
+  Checkbox,
+  useNumberDropdown,
+} from './components'
 import {
   calculateDamage,
   calculateUIRaw,
   calculateUIElement,
 } from './calculator'
 import {
+  Weapon,
   maximumMightSkill,
   latentPowerSkill,
   agitatorSkill,
@@ -16,11 +23,17 @@ import {
   sharpnessRawMultiplier,
   attackBoostSkill,
   elementalAttackSkill,
+  bludgeonerSkill,
+  criticalBoostSkill,
+  weapons,
+  shotTypeUpSkill,
+  rapidFireUpSkill,
 } from './calculator/skills'
 import { toFixed } from './utils'
 
 export default function Main() {
   // weapon
+  const [weaponType, setWeaponType] = useState<Weapon>('Melee')
   const [weaponRaw, setWeaponRaw] = useState(200)
   const [weaponElement, setWeaponElement] = useState(0)
   const [weaponAffinity, setWeaponAffinity] = useState(0)
@@ -38,8 +51,14 @@ export default function Main() {
   const [criticalBoost, setCriticalBoost] = useState(0)
   const [criticalElement, setCriticalElement] = useState(0)
   const [wex, setWex] = useState(0)
-  const [bludgeoner, setBludgeoner] = useState(0)
-  // const [ammoTypeUp, setAmmoTypeUp] = useState(0)
+  const [bludgeoner, renderBludgeoner] = useNumberDropdown({
+    skill: bludgeonerSkill,
+    label: 'Bludgeoner',
+  })
+
+  // ranged
+  const [shotTypeUp, setShotTypeUp] = useState(0)
+  const [rapidFireUp, setRapidFireUp] = useState(0)
 
   // conditionals
   const [agitator, setAgitator] = useState(0)
@@ -74,7 +93,7 @@ export default function Main() {
   const uiRaw = useMemo(() => {
     return calculateUIRaw({
       weaponRaw,
-      sharpness,
+      sharpness: sharpness,
       bludgeoner,
       attackBoost,
       rawModifierPercentage,
@@ -163,7 +182,7 @@ export default function Main() {
   } = useMemo(() => {
     return calculateDamage({
       uiRaw,
-      sharpness,
+      sharpness: weaponType === 'Ranged' ? 'Ranged' : sharpness,
       motionValue,
       hitzoneEle,
       hitzoneRaw,
@@ -172,12 +191,20 @@ export default function Main() {
       criticalBoost,
       criticalElement,
       rawMultiplier,
+      rawMultipliers: [
+        weaponType === 'Ranged' ? shotTypeUpSkill[shotTypeUp] : 0,
+        weaponType === 'Ranged' ? rapidFireUpSkill[rapidFireUp] : 0,
+      ],
       eleMultiplier,
+      eleMultipliers: [
+        weaponType === 'Ranged' ? rapidFireUpSkill[rapidFireUp] : 0,
+      ],
       brutalStrike: rampageSkill === 'brutalStrike',
       dullingStrike: rampageSkill === 'dullingStrike',
       elementExploit: rampageSkill === 'elementExploit',
     })
   }, [
+    weaponType,
     uiRaw,
     sharpness,
     motionValue,
@@ -190,11 +217,18 @@ export default function Main() {
     rawMultiplier,
     eleMultiplier,
     rampageSkill,
+    shotTypeUp,
+    rapidFireUp,
   ])
 
   return (
     <div className="main">
       <Box header="Weapon">
+        <Dropdown
+          label="Type"
+          options={weapons}
+          onChangeValue={(v) => setWeaponType(v as Weapon)}
+        />
         <div>
           <NumberInput
             label="Raw"
@@ -212,14 +246,18 @@ export default function Main() {
             onChangeValue={setWeaponAffinity}
           />
         </div>
-        <Dropdown
-          options={Object.keys(sharpnessRawMultiplier)}
-          label="Sharpness"
-          placeholder="Sharpness"
-          onChangeValue={(i) =>
-            setSharpness(i as keyof typeof sharpnessRawMultiplier)
-          }
-        />
+        {weaponType === 'Melee' && (
+          <Dropdown
+            options={Object.keys(sharpnessRawMultiplier).filter(
+              (s) => s !== 'Ranged'
+            )}
+            label="Sharpness"
+            placeholder="Sharpness"
+            onChangeValue={(i) =>
+              setSharpness(i as keyof typeof sharpnessRawMultiplier)
+            }
+          />
+        )}
         <h4>{'Rampage Skills'}</h4>
         <Checkbox
           label="Brutal Strike"
@@ -273,15 +311,9 @@ export default function Main() {
           onChangeValue={(v) => setWex(parseInt(v))}
           note="Activates if raw hitzone >=45"
         />
+        {renderBludgeoner}
         <Dropdown
-          options={[0, 1, 2, 3]}
-          label="Bludgeoner"
-          value={bludgeoner.toString()}
-          onChangeValue={(v) => setBludgeoner(parseInt(v))}
-          note="Activates at yellow/yellow/green sharpness"
-        />
-        <Dropdown
-          options={[0, 1, 2, 3]}
+          options={Object.keys(criticalBoostSkill)}
           label="Critical Boost"
           value={criticalBoost.toString()}
           onChangeValue={(v) => setCriticalBoost(parseInt(v))}
@@ -292,14 +324,26 @@ export default function Main() {
           value={criticalElement.toString()}
           onChangeValue={(v) => setCriticalElement(parseInt(v))}
         />
-        {/* <Dropdown
-          options={[0, 1, 2, 3]}
-          label="Ammo Type Up"
-          value={ammoTypeUp.toString()}
-          onChangeValue={(v) => setAmmoTypeUp(parseInt(v))}
-          note="e.g. Pierce/Rapid Fire/Spread Up"
-        /> */}
       </Box>
+      {weaponType === 'Ranged' && (
+        <Box header="Ranged">
+          <>
+            <Dropdown
+              options={[0, 1, 2, 3]}
+              label="Shot Type Up"
+              value={shotTypeUp.toString()}
+              onChangeValue={(v) => setShotTypeUp(parseInt(v))}
+              note="e.g. Normal/Rapid Up, Pierce Up"
+            />
+            <Dropdown
+              options={[0, 1, 2, 3]}
+              label="Rapid Fire Up"
+              value={rapidFireUp.toString()}
+              onChangeValue={(v) => setRapidFireUp(parseInt(v))}
+            />
+          </>
+        </Box>
+      )}
       <Box header="Skills 2">
         <Dropdown
           label="Agitator"

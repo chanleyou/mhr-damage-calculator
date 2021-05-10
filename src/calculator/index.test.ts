@@ -140,4 +140,19 @@ test('Element Exploit', () => {
   expect(calculateDamage({ ...params, elementExploit: true }).crit).toBe(67)
 })
 
+test('Ranged Pierce Up', () => {
+  const params = {
+    uiRaw: 210,
+    sharpness: 'Ranged',
+    motionValue: 7,
+    hitzoneRaw: 100,
+    hitzoneEle: 30,
+  } as const
+
+  expect(calculateDamage(params).hit).toBe(15)
+  expect(calculateDamage({ ...params, rawMultipliers: [5] }).hit).toBe(15)
+  expect(calculateDamage({ ...params, rawMultipliers: [10] }).hit).toBe(16)
+  expect(calculateDamage({ ...params, rawMultipliers: [20] }).hit).toBe(18)
+})
+
 export {}

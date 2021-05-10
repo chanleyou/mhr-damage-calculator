@@ -125,6 +125,7 @@ export function calculateRawDamage({
   hitzoneRaw,
   criticalBoost = 0,
   rawMultiplier = 0,
+  rawMultipliers = [],
 }: {
   uiRaw: number
   sharpness: Sharpness
@@ -132,12 +133,16 @@ export function calculateRawDamage({
   hitzoneRaw: number
   criticalBoost?: number
   rawMultiplier?: number
+  rawMultipliers?: number[]
 }) {
   const rawHit =
     uiRaw *
     percentage(hitzoneRaw) *
     percentage(motionValue) *
-    mPercentage(rawMultiplier) *
+    [...rawMultipliers, rawMultiplier].reduce(
+      (acc, n) => acc * mPercentage(n),
+      1
+    ) *
     sharpnessRawMultiplier[sharpness]
 
   return {
@@ -153,6 +158,7 @@ export function calculateElementDamage({
   criticalElement = 0,
   eleMultiplier = 0,
   elementExploit,
+  eleMultipliers = [],
 }: {
   uiElement: number
   sharpness: Sharpness
@@ -160,11 +166,15 @@ export function calculateElementDamage({
   criticalElement?: number
   eleMultiplier?: number
   elementExploit?: boolean
+  eleMultipliers?: number[]
 }) {
   const eleHit =
     uiElement *
     percentage(hitzoneEle) *
-    mPercentage(eleMultiplier) *
+    [...eleMultipliers, eleMultiplier].reduce(
+      (acc, n) => acc * mPercentage(n),
+      1
+    ) *
     (hitzoneEle >= 25 && elementExploit ? 1.3 : 1) *
     sharpnessElementMultiplier[sharpness]
 
@@ -189,6 +199,8 @@ export function calculateDamage({
   brutalStrike,
   dullingStrike,
   elementExploit,
+  rawMultipliers = [],
+  eleMultipliers = [],
 }: {
   uiRaw: number
   sharpness: Sharpness
@@ -204,6 +216,8 @@ export function calculateDamage({
   brutalStrike?: boolean
   dullingStrike?: boolean
   elementExploit?: boolean
+  rawMultipliers?: number[]
+  eleMultipliers?: number[]
 }) {
   const hasDullingStrike =
     dullingStrike && dullingStrikeSharpnessList.includes(sharpness)
@@ -215,6 +229,7 @@ export function calculateDamage({
     criticalBoost,
     hitzoneRaw,
     rawMultiplier,
+    rawMultipliers,
   })
 
   const brutalStrikeRawCrit = rawHit * 1.5
@@ -229,6 +244,7 @@ export function calculateDamage({
     hitzoneEle,
     criticalElement,
     eleMultiplier,
+    eleMultipliers,
     elementExploit,
   })
 
