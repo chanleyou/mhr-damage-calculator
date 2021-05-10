@@ -23,7 +23,7 @@ test('Bludgeoner + Kinsect 3', () => {
   expect(calculateUIRaw({ ...base, rawModifierPercentage: 15 })).toBe(210)
 })
 
-test('Mighty Guard + Bludgeoner', () => {
+test('Offensive Guard + Bludgeoner', () => {
   const base = {
     weaponRaw: 208,
     attackBoost: 6,
@@ -32,7 +32,7 @@ test('Mighty Guard + Bludgeoner', () => {
     rawFlatBonus: 30,
   } as const
   expect(calculateUIRaw(base)).toBe(274)
-  expect(calculateUIRaw({ ...base, mightyGuard: 1 })).toBe(286)
+  expect(calculateUIRaw({ ...base, offensiveGuard: 1 })).toBe(286)
 })
 
 test('Dango Booster, Palico Power Drum', () => {

@@ -7,6 +7,10 @@
 
 ## Changelog
 
+### 2021-05-10
+
+- Added Peak Performance and Offensive Guard
+
 ### 2021-05-08
 
 - Added Element Exploit

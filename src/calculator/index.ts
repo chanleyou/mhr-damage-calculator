@@ -1,3 +1,19 @@
+import {
+  agitatorSkill,
+  attackBoostSkill,
+  bludgeonerSkill,
+  criticalBoostSkill,
+  criticalElementSkill,
+  demondrugTypes,
+  dullingStrikeSharpnessList,
+  elementalAttackSkill,
+  offensiveGuardSkill,
+  peakPerformanceSkill,
+  Sharpness,
+  sharpnessElementMultiplier,
+  sharpnessRawMultiplier,
+} from './skills'
+
 function percentage(n: number) {
   return n / 100
 }
@@ -36,7 +52,8 @@ export function calculateUIRaw({
   demondrug = 'None',
   powerDrum,
   agitator = 0,
-  mightyGuard = 0,
+  offensiveGuard = 0,
+  peakPerformance = 0,
 }: {
   weaponRaw: number
   sharpness: Sharpness
@@ -51,15 +68,16 @@ export function calculateUIRaw({
   dangoBooster?: boolean
   demondrug?: keyof typeof demondrugTypes
   powerDrum?: boolean
-  mightyGuard?: number
+  offensiveGuard?: number
   agitator?: number
+  peakPerformance?: number
 }) {
   const percentageRaw = [
     attackBoostSkill[attackBoost][0],
     bludgeonerSkill[bludgeoner][0].includes(sharpness)
       ? bludgeonerSkill[bludgeoner][1]
       : 0,
-    mightyGuardSkill[mightyGuard],
+    offensiveGuardSkill[offensiveGuard],
     powerDrum ? 5 : 0,
     rawModifierPercentage,
   ].reduce((raw, b) => raw * mPercentage(b), weaponRaw)
@@ -73,6 +91,7 @@ export function calculateUIRaw({
     (demonPowder ? 10 : 0) +
     (dangoBooster ? 9 : 0) +
     demondrugTypes[demondrug] +
+    peakPerformanceSkill[peakPerformance] +
     rawFlatBonus
 
   return Math.floor(percentageRaw + flatBonuses + 0.1)
@@ -275,100 +294,3 @@ export function calculateDamage({
       affinity >= 0 ? dullingStrikeCrit : dullingStrikeNegativeCrit,
   }
 }
-
-/** aB[rank] = [percentage, flat] */
-export const attackBoostSkill = [
-  [0, 0],
-  [0, 3],
-  [0, 6],
-  [0, 9],
-  [5, 7],
-  [6, 8],
-  [8, 9],
-  [10, 10],
-] as const
-
-export const criticalEyeSkill = [0, 5, 10, 15, 20, 25, 30, 40]
-
-/** percentage, flat */
-export const elementalAttackSkill = [
-  [0, 0],
-  [0, 2],
-  [0, 3],
-  [5, 4],
-  [10, 4],
-  [20, 4],
-]
-
-export type Sharpness =
-  | 'Red'
-  | 'Orange'
-  | 'Yellow'
-  | 'Green'
-  | 'Blue'
-  | 'White'
-  | 'Ranged'
-
-export const sharpnessRawMultiplier: { [K in Sharpness]: number } = {
-  White: 1.32,
-  Blue: 1.2,
-  Green: 1.05,
-  Yellow: 1,
-  Orange: 0.75,
-  Red: 0.5,
-  Ranged: 1,
-} as const
-
-export const sharpnessElementMultiplier: { [K in Sharpness]: number } = {
-  White: 1.15,
-  Blue: 1.0625,
-  Green: 1,
-  Yellow: 0.75,
-  Orange: 0.5,
-  Red: 0.25,
-  Ranged: 1,
-} as const
-
-export const criticalBoostSkill = [1.25, 1.3, 1.35, 1.4] as const
-
-export const weaknessExploitSkill = [0, 15, 30, 50] as const
-
-export const criticalElementSkill = [1, 1.05, 1.1, 1.15] as const
-
-export const demondrugTypes = {
-  None: 0,
-  Demondrug: 5,
-  'Mega Demondrug': 7,
-} as const
-
-export const bludgeonerSkill: [Sharpness[], number][] = [
-  [[], 0],
-  [['Red', 'Orange', 'Yellow'], 5],
-  [['Red', 'Orange', 'Yellow'], 10],
-  [['Red', 'Orange', 'Yellow', 'Green'], 10],
-]
-
-export const maximumMightSkill = [0, 10, 20, 30] as const
-
-export const latentPowerSkill = [0, 10, 20, 30, 40, 50] as const
-
-/** [attack, affinity] */
-export const agitatorSkill = [
-  [0, 0],
-  [4, 3],
-  [8, 5],
-  [12, 7],
-  [16, 10],
-  [20, 15],
-]
-
-export const mightyGuardSkill = [0, 5, 10, 15] as const
-
-export const ammoTypeUpSkill = [0, 5, 10, 20] as const
-
-export const dullingStrikeSharpnessList: Sharpness[] = [
-  'Red',
-  'Orange',
-  'Yellow',
-  'Green',
-]

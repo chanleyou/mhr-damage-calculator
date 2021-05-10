@@ -2,17 +2,21 @@ import React, { useMemo, useState } from 'react'
 import { NumberInput, Dropdown, Box, Checkbox } from './components'
 import {
   calculateDamage,
-  sharpnessRawMultiplier,
+  calculateUIRaw,
+  calculateUIElement,
+} from './calculator'
+import {
+  maximumMightSkill,
+  latentPowerSkill,
+  agitatorSkill,
   weaknessExploitSkill,
   demondrugTypes,
   Sharpness,
   criticalEyeSkill,
-  calculateUIRaw,
-  calculateUIElement,
-  maximumMightSkill,
-  latentPowerSkill,
-  agitatorSkill,
-} from './calculator'
+  sharpnessRawMultiplier,
+  attackBoostSkill,
+  elementalAttackSkill,
+} from './calculator/skills'
 import { toFixed } from './utils'
 
 export default function Main() {
@@ -41,6 +45,8 @@ export default function Main() {
   const [agitator, setAgitator] = useState(0)
   const [maximumMight, setMaximumMight] = useState(0)
   const [latentPower, setLatentPower] = useState(0)
+  const [offensiveGuard, setOffensiveGuard] = useState(0)
+  const [peakPerformance, setPeakPerformance] = useState(0)
 
   const [powercharm, setPowercharm] = useState(true)
   const [powertalon, setPowertalon] = useState(true)
@@ -81,6 +87,8 @@ export default function Main() {
       demondrug,
       powerDrum,
       agitator,
+      offensiveGuard,
+      peakPerformance,
     })
   }, [
     weaponRaw,
@@ -97,6 +105,8 @@ export default function Main() {
     demondrug,
     powerDrum,
     agitator,
+    offensiveGuard,
+    peakPerformance,
   ])
 
   const uiElement = useMemo(() => {
@@ -239,25 +249,25 @@ export default function Main() {
       </Box>
       <Box header="Skills">
         <Dropdown
-          options={[0, 1, 2, 3, 4, 5, 6, 7]}
+          options={Object.keys(attackBoostSkill)}
           label="Attack Boost"
           value={attackBoost.toString()}
           onChangeValue={(v) => setAttackBoost(parseInt(v))}
         />
         <Dropdown
-          options={[0, 1, 2, 3, 4, 5]}
+          options={Object.keys(elementalAttackSkill)}
           label="Element Attack"
           value={elementalAttack.toString()}
           onChangeValue={(v) => setElementalAttack(parseInt(v))}
         />
         <Dropdown
-          options={[0, 1, 2, 3, 4, 5, 6, 7]}
+          options={Object.keys(criticalEyeSkill)}
           label="Critical Eye"
           value={criticalEye.toString()}
           onChangeValue={(v) => setCriticalEye(parseInt(v))}
         />
         <Dropdown
-          options={[0, 1, 2, 3]}
+          options={Object.keys(weaknessExploitSkill)}
           label="Weakness Exploit"
           value={wex.toString()}
           onChangeValue={(v) => setWex(parseInt(v))}
@@ -308,6 +318,18 @@ export default function Main() {
           options={[0, 1, 2, 3]}
           value={maximumMight.toString()}
           onChangeValue={(v) => setMaximumMight(parseInt(v))}
+        />
+        <Dropdown
+          label="Offensive Guard"
+          options={[0, 1, 2, 3]}
+          value={offensiveGuard.toString()}
+          onChangeValue={(v) => setOffensiveGuard(parseInt(v))}
+        />
+        <Dropdown
+          label="Peak Performance"
+          options={[0, 1, 2, 3]}
+          value={peakPerformance.toString()}
+          onChangeValue={(v) => setPeakPerformance(parseInt(v))}
         />
         <h4>{'Palico'}</h4>
         <Checkbox
