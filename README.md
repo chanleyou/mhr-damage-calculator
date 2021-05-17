@@ -1,5 +1,9 @@
 ## Changelog
 
+### 2021-05-18
+
+- Fix Power Sheathe & Bludgeoner buffs staying even if weapon is wrong type
+
 ### 2021-05-17
 
 - Added Heroics, Counterstrike, Great Sword Power Sheathe

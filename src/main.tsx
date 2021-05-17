@@ -43,9 +43,8 @@ export default function Main() {
   const [sharpness, setSharpness] = useState<Sharpness>('White')
 
   // rampage skills
-  const [rampageSkill, setRampageSkill] = useState<
-    'brutalStrike' | 'dullingStrike' | 'elementExploit'
-  >()
+  const [rampageSkill, setRampageSkill] =
+    useState<'brutalStrike' | 'dullingStrike' | 'elementExploit'>()
 
   // skills
   const [attackBoost, setAttackBoost] = useState(0)
@@ -89,9 +88,8 @@ export default function Main() {
   const [dangoBooster, setDangoBooster] = useState(false)
   const [mightSeed, setMightSeed] = useState(false)
   const [demonPowder, setDemonPowder] = useState(false)
-  const [demondrug, setDemondrug] = useState<keyof typeof demondrugTypes>(
-    'None'
-  )
+  const [demondrug, setDemondrug] =
+    useState<keyof typeof demondrugTypes>('None')
   const [powerDrum, setPowerDrum] = useState(false)
   const [rousingRoar, setRousingRoar] = useState(false)
 
@@ -112,7 +110,7 @@ export default function Main() {
   const uiRaw = useMemo(() => {
     return calculateUIRaw({
       weaponRaw,
-      sharpness: sharpness,
+      sharpness: weaponType === 'Ranged' ? 'Ranged' : sharpness,
       bludgeoner,
       attackBoost,
       rawModifierPercentage,
@@ -129,7 +127,7 @@ export default function Main() {
       peakPerformance,
       counterstrike,
       heroics,
-      powerSheathe,
+      powerSheathe: weaponType === 'Great Sword' && powerSheathe,
     })
   }, [
     weaponRaw,
@@ -151,6 +149,7 @@ export default function Main() {
     counterstrike,
     heroics,
     powerSheathe,
+    weaponType,
   ])
 
   const uiElement = useMemo(() => {
