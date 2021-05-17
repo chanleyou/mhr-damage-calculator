@@ -1,5 +1,11 @@
 ## Changelog
 
+### 2021-05-17
+
+- Added Heroics, Counterstrike, Great Sword Power Sheathe
+
+### 2021-05-11
+
 - CSS tweaks, really fix number input overflow this time
 
 ### 2021-05-10

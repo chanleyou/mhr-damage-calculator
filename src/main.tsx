@@ -28,6 +28,9 @@ import {
   weapons,
   shotTypeUpSkill,
   rapidFireUpSkill,
+  counterstrikeSkill,
+  heroicsSkill,
+  // mindsEyeSkill,
 } from './calculator/skills'
 import { toFixed } from './utils'
 
@@ -55,6 +58,11 @@ export default function Main() {
     skill: bludgeonerSkill,
     label: 'Bludgeoner',
   })
+  // const [mindsEye, renderMindsEye] = useNumberDropdown({
+  //   skill: mindsEyeSkill,
+  //   label: "Mind's Eye",
+  //   note: 'if sharpness * raw hitzone < 45',
+  // })
 
   // ranged
   const [shotTypeUp, setShotTypeUp] = useState(0)
@@ -66,6 +74,14 @@ export default function Main() {
   const [latentPower, setLatentPower] = useState(0)
   const [offensiveGuard, setOffensiveGuard] = useState(0)
   const [peakPerformance, setPeakPerformance] = useState(0)
+  const [counterstrike, renderCounterstrike] = useNumberDropdown({
+    skill: counterstrikeSkill,
+    label: 'Counterstrike',
+  })
+  const [heroics, renderHeroics] = useNumberDropdown({
+    skill: heroicsSkill,
+    label: 'Heroics',
+  })
 
   const [powercharm, setPowercharm] = useState(true)
   const [powertalon, setPowertalon] = useState(true)
@@ -78,6 +94,9 @@ export default function Main() {
   )
   const [powerDrum, setPowerDrum] = useState(false)
   const [rousingRoar, setRousingRoar] = useState(false)
+
+  // great sword
+  const [powerSheathe, setPowerSheathe] = useState(false)
 
   const [miscAb, setMiscAb] = useState(0)
   const [miscAffinity, setMiscAffinity] = useState(0)
@@ -108,6 +127,9 @@ export default function Main() {
       agitator,
       offensiveGuard,
       peakPerformance,
+      counterstrike,
+      heroics,
+      powerSheathe,
     })
   }, [
     weaponRaw,
@@ -126,6 +148,9 @@ export default function Main() {
     agitator,
     offensiveGuard,
     peakPerformance,
+    counterstrike,
+    heroics,
+    powerSheathe,
   ])
 
   const uiElement = useMemo(() => {
@@ -202,6 +227,7 @@ export default function Main() {
       brutalStrike: rampageSkill === 'brutalStrike',
       dullingStrike: rampageSkill === 'dullingStrike',
       elementExploit: rampageSkill === 'elementExploit',
+      // mindsEye,
     })
   }, [
     weaponType,
@@ -219,6 +245,7 @@ export default function Main() {
     rampageSkill,
     shotTypeUp,
     rapidFireUp,
+    // mindsEye,
   ])
 
   return (
@@ -246,7 +273,7 @@ export default function Main() {
             onChangeValue={setWeaponAffinity}
           />
         </div>
-        {weaponType === 'Melee' && (
+        {weaponType !== 'Ranged' && (
           <Dropdown
             options={Object.keys(sharpnessRawMultiplier).filter(
               (s) => s !== 'Ranged'
@@ -282,7 +309,7 @@ export default function Main() {
             if (rampageSkill === 'elementExploit') setRampageSkill(undefined)
             else setRampageSkill('elementExploit')
           }}
-          note="If element hitzone >= 25"
+          note="if element hitzone >= 25"
         />
       </Box>
       <Box header="Skills">
@@ -309,7 +336,7 @@ export default function Main() {
           label="Weakness Exploit"
           value={wex.toString()}
           onChangeValue={(v) => setWex(parseInt(v))}
-          note="If raw hitzone >= 45"
+          note="if raw hitzone >= 45"
         />
         <Dropdown
           options={Object.keys(criticalBoostSkill)}
@@ -340,7 +367,10 @@ export default function Main() {
             />
           </>
         ) : (
-          renderBludgeoner
+          <>
+            {renderBludgeoner}
+            {/* {renderMindsEye} */}
+          </>
         )}
       </Box>
       <Box header="Skills 2">
@@ -374,19 +404,10 @@ export default function Main() {
           value={peakPerformance.toString()}
           onChangeValue={(v) => setPeakPerformance(parseInt(v))}
         />
-        <h4>{'Palico'}</h4>
-        <Checkbox
-          label="Power Drum"
-          value={powerDrum}
-          onChangeValue={setPowerDrum}
-        />
-        <Checkbox
-          label="Rousing Roar"
-          value={rousingRoar}
-          onChangeValue={setRousingRoar}
-        />
+        {renderCounterstrike}
+        {renderHeroics}
       </Box>
-      <Box header="Others">
+      <Box header="Buffs">
         <Checkbox
           label="Powercharm"
           value={powercharm}
@@ -421,6 +442,31 @@ export default function Main() {
             setDemondrug(s as keyof typeof demondrugTypes)
           }
         />
+        <h4>{'Palico'}</h4>
+        <Checkbox
+          label="Power Drum"
+          value={powerDrum}
+          onChangeValue={setPowerDrum}
+        />
+        <Checkbox
+          label="Rousing Roar"
+          value={rousingRoar}
+          onChangeValue={setRousingRoar}
+        />
+        {weaponType === 'Great Sword' && (
+          <>
+            <div style={{ height: '8px' }} />
+
+            <h4>{'Great Sword'}</h4>
+            <Checkbox
+              label="Power Sheathe"
+              value={powerSheathe}
+              onChangeValue={setPowerSheathe}
+            />
+          </>
+        )}
+      </Box>
+      <Box header="Misc">
         <NumberInput
           label="Misc. Attack Bonus (Flat)"
           value={miscAb}

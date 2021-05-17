@@ -1,6 +1,6 @@
-export const weapons = ['Melee', 'Ranged']
-
-export type Weapon = 'Melee' | 'Ranged'
+// figure out a way to remove this redundancy
+export const weapons = ['Melee', 'Great Sword', 'Ranged']
+export type Weapon = 'Melee' | 'Great Sword' | 'Ranged'
 
 export type Sharpness =
   | 'Red'
@@ -102,3 +102,10 @@ export const dullingStrikeSharpnessList: Sharpness[] = [
 ]
 
 export const peakPerformanceSkill = [0, 5, 10, 20] as const
+
+export const counterstrikeSkill = [0, 10, 15, 25]
+
+// %
+export const heroicsSkill = [0, 0, 5, 5, 10, 30]
+
+export const mindsEyeSkill = [0, 10, 15, 30]

@@ -2,11 +2,14 @@ import {
   agitatorSkill,
   attackBoostSkill,
   bludgeonerSkill,
+  counterstrikeSkill,
   criticalBoostSkill,
   criticalElementSkill,
   demondrugTypes,
   dullingStrikeSharpnessList,
   elementalAttackSkill,
+  heroicsSkill,
+  mindsEyeSkill,
   offensiveGuardSkill,
   peakPerformanceSkill,
   Sharpness,
@@ -54,6 +57,9 @@ export function calculateUIRaw({
   agitator = 0,
   offensiveGuard = 0,
   peakPerformance = 0,
+  counterstrike = 0,
+  heroics = 0,
+  powerSheathe,
 }: {
   weaponRaw: number
   sharpness: Sharpness
@@ -71,6 +77,9 @@ export function calculateUIRaw({
   offensiveGuard?: number
   agitator?: number
   peakPerformance?: number
+  counterstrike?: number
+  heroics?: number
+  powerSheathe?: boolean
 }) {
   const percentageRaw = [
     attackBoostSkill[attackBoost][0],
@@ -78,6 +87,8 @@ export function calculateUIRaw({
       ? bludgeonerSkill[bludgeoner][1]
       : 0,
     offensiveGuardSkill[offensiveGuard],
+    heroicsSkill[heroics],
+    powerSheathe ? 10 : 0,
     powerDrum ? 5 : 0,
     rawModifierPercentage,
   ].reduce((raw, b) => raw * mPercentage(b), weaponRaw)
@@ -92,6 +103,7 @@ export function calculateUIRaw({
     (dangoBooster ? 9 : 0) +
     demondrugTypes[demondrug] +
     peakPerformanceSkill[peakPerformance] +
+    counterstrikeSkill[counterstrike] +
     rawFlatBonus
 
   return Math.floor(percentageRaw + flatBonuses + 0.1)
@@ -126,6 +138,7 @@ export function calculateRawDamage({
   criticalBoost = 0,
   miscRawMultiplier = 0,
   rawMultipliers = [],
+  mindsEye = 0,
 }: {
   uiRaw: number
   sharpness: Sharpness
@@ -134,7 +147,12 @@ export function calculateRawDamage({
   criticalBoost?: number
   miscRawMultiplier?: number
   rawMultipliers?: number[]
+  mindsEye?: number
 }) {
+  if (sharpnessRawMultiplier[sharpness] * hitzoneRaw < 45) {
+    rawMultipliers.push(mindsEyeSkill[mindsEye])
+  }
+
   const rawHit =
     uiRaw *
     percentage(hitzoneRaw) *
@@ -201,6 +219,7 @@ export function calculateDamage({
   elementExploit,
   rawMultipliers = [],
   eleMultipliers = [],
+  mindsEye = 0,
 }: {
   uiRaw: number
   sharpness: Sharpness
@@ -218,6 +237,7 @@ export function calculateDamage({
   elementExploit?: boolean
   rawMultipliers?: number[]
   eleMultipliers?: number[]
+  mindsEye?: number
 }) {
   const hasDullingStrike =
     dullingStrike && dullingStrikeSharpnessList.includes(sharpness)
@@ -230,6 +250,7 @@ export function calculateDamage({
     hitzoneRaw,
     miscRawMultiplier,
     rawMultipliers,
+    mindsEye,
   })
 
   const brutalStrikeRawCrit = rawHit * 1.5
