@@ -155,4 +155,49 @@ test('Ranged Pierce Up', () => {
   expect(calculateDamage({ ...params, rawMultipliers: [20] }).hit).toBe(18)
 })
 
+test("Mind's Eye", () => {
+  const params = {
+    uiRaw: 311,
+    uiElement: 16,
+    sharpness: 'Green',
+    motionValue: 45,
+    hitzoneRaw: 40,
+    hitzoneEle: 15,
+  } as const
+
+  expect(calculateDamage(params).hit).toBe(61)
+  expect(calculateDamage({ ...params, mindsEye: 2 }).hit).toBe(70)
+})
+
+test('SA Power Phial', () => {
+  // zinogre SA
+  const params = {
+    uiRaw: 260,
+    uiElement: 34,
+    sharpness: 'White',
+    motionValue: 32,
+    hitzoneRaw: 100,
+    hitzoneEle: 30,
+  } as const
+
+  expect(calculateDamage({ ...params, rawMultipliers: [15] }).hit).toBe(138)
+  expect(calculateDamage({ ...params, rawMultipliers: [15] }).crit).toBe(170)
+})
+
+test('SA Element Phial', () => {
+  // barioth SA
+  const params = {
+    uiRaw: 260,
+    uiElement: 34,
+    sharpness: 'Blue',
+    motionValue: 32,
+    hitzoneRaw: 100,
+    hitzoneEle: 30,
+    criticalBoost: 2,
+  } as const
+
+  expect(calculateDamage({ ...params, eleMultipliers: [45] }).crit).toBe(151) // sword overhead
+  expect(calculateDamage({ ...params, motionValue: 50 }).crit).toBe(222) // axe overhead
+})
+
 export {}

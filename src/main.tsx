@@ -30,7 +30,8 @@ import {
   rapidFireUpSkill,
   counterstrikeSkill,
   heroicsSkill,
-  // mindsEyeSkill,
+  mindsEyeSkill,
+  SwitchAxePhialType,
 } from './calculator/skills'
 import { toFixed } from './utils'
 
@@ -57,11 +58,11 @@ export default function Main() {
     skill: bludgeonerSkill,
     label: 'Bludgeoner',
   })
-  // const [mindsEye, renderMindsEye] = useNumberDropdown({
-  //   skill: mindsEyeSkill,
-  //   label: "Mind's Eye",
-  //   note: 'if sharpness * raw hitzone < 45',
-  // })
+  const [mindsEye, renderMindsEye] = useNumberDropdown({
+    skill: mindsEyeSkill,
+    label: "Mind's Eye",
+    note: 'if sharpness * raw hitzone < 45',
+  })
 
   // ranged
   const [shotTypeUp, setShotTypeUp] = useState(0)
@@ -95,6 +96,8 @@ export default function Main() {
 
   // great sword
   const [powerSheathe, setPowerSheathe] = useState(false)
+
+  const [saPhial, setSaPhial] = useState<SwitchAxePhialType>()
 
   const [miscAb, setMiscAb] = useState(0)
   const [miscAffinity, setMiscAffinity] = useState(0)
@@ -218,15 +221,17 @@ export default function Main() {
       rawMultipliers: [
         weaponType === 'Ranged' ? shotTypeUpSkill[shotTypeUp] : 0,
         weaponType === 'Ranged' ? rapidFireUpSkill[rapidFireUp] : 0,
+        weaponType === 'Switch Axe' && saPhial === 'Power' ? 15 : 0,
       ],
       miscEleMultiplier,
       eleMultipliers: [
         weaponType === 'Ranged' ? rapidFireUpSkill[rapidFireUp] : 0,
+        weaponType === 'Switch Axe' && saPhial === 'Element' ? 45 : 0,
       ],
       brutalStrike: rampageSkill === 'brutalStrike',
       dullingStrike: rampageSkill === 'dullingStrike',
       elementExploit: rampageSkill === 'elementExploit',
-      // mindsEye,
+      mindsEye,
     })
   }, [
     weaponType,
@@ -244,7 +249,8 @@ export default function Main() {
     rampageSkill,
     shotTypeUp,
     rapidFireUp,
-    // mindsEye,
+    mindsEye,
+    saPhial,
   ])
 
   return (
@@ -368,7 +374,7 @@ export default function Main() {
         ) : (
           <>
             {renderBludgeoner}
-            {/* {renderMindsEye} */}
+            {renderMindsEye}
           </>
         )}
       </Box>
@@ -461,6 +467,28 @@ export default function Main() {
               label="Power Sheathe"
               value={powerSheathe}
               onChangeValue={setPowerSheathe}
+            />
+          </>
+        )}
+        {weaponType === 'Switch Axe' && (
+          <>
+            <div style={{ height: '8px' }} />
+            <h4>{'Switch Axe'}</h4>
+            <Checkbox
+              label="Power Phial"
+              value={saPhial === 'Power'}
+              onChangeValue={() => {
+                if (saPhial === 'Power') setSaPhial(undefined)
+                else setSaPhial('Power')
+              }}
+            />
+            <Checkbox
+              label="Element Phial"
+              value={saPhial === 'Element'}
+              onChangeValue={() => {
+                if (saPhial === 'Element') setSaPhial(undefined)
+                else setSaPhial('Element')
+              }}
             />
           </>
         )}

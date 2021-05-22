@@ -1,7 +1,7 @@
 import React from 'react'
 
-type Props = {
-  options: (string | number)[]
+type Props<T = string | number> = {
+  options: T[]
   onChangeValue: (value: string) => void
   value?: string
   label?: string
@@ -9,14 +9,14 @@ type Props = {
   note?: string
 }
 
-export default function Dropdown({
+export default function Dropdown<T extends string | number>({
   options,
   onChangeValue,
   label,
   value,
   placeholder,
   note,
-}: Props) {
+}: Props<T>) {
   return (
     <div className="dropdown">
       <label>{label}</label>

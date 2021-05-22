@@ -1,6 +1,6 @@
 // figure out a way to remove this redundancy
-export const weapons = ['Melee', 'Great Sword', 'Ranged']
-export type Weapon = 'Melee' | 'Great Sword' | 'Ranged'
+export const weapons = ['Melee', 'Great Sword', 'Switch Axe', 'Ranged']
+export type Weapon = 'Melee' | 'Great Sword' | 'Switch Axe' | 'Ranged'
 
 export type Sharpness =
   | 'Red'
@@ -10,6 +10,8 @@ export type Sharpness =
   | 'Blue'
   | 'White'
   | 'Ranged'
+
+export type SwitchAxePhialType = 'Other' | 'Power' | 'Element'
 
 export const sharpnessRawMultiplier: { [K in Sharpness]: number } = {
   White: 1.32,
