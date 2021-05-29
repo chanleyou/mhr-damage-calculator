@@ -111,3 +111,9 @@ export const counterstrikeSkill = [0, 10, 15, 25]
 export const heroicsSkill = [0, 0, 5, 5, 10, 30]
 
 export const mindsEyeSkill = [0, 10, 15, 30]
+
+export const dragonheartSkill = [0, 0, 0, 0, 5, 10]
+
+export const resuscitateSkill = [0, 5, 10, 20]
+
+export const resentmentSkill = [0, 5, 10, 15, 20, 25]

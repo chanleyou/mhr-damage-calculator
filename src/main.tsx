@@ -32,6 +32,9 @@ import {
   heroicsSkill,
   mindsEyeSkill,
   SwitchAxePhialType,
+  dragonheartSkill,
+  resuscitateSkill,
+  resentmentSkill,
 } from './calculator/skills'
 import { toFixed } from './utils'
 
@@ -82,6 +85,18 @@ export default function Main() {
     skill: heroicsSkill,
     label: 'Heroics',
   })
+  const [dragonheart, renderDragonheart] = useNumberDropdown({
+    skill: dragonheartSkill,
+    label: 'Dragonheart',
+  })
+  const [resuscitate, renderResuscitate] = useNumberDropdown({
+    skill: resuscitateSkill,
+    label: 'Resuscitate',
+  })
+  const [resentment, renderResentment] = useNumberDropdown({
+    skill: resentmentSkill,
+    label: 'Resentment',
+  })
 
   const [powercharm, setPowercharm] = useState(true)
   const [powertalon, setPowertalon] = useState(true)
@@ -98,6 +113,10 @@ export default function Main() {
   const [powerSheathe, setPowerSheathe] = useState(false)
 
   const [saPhial, setSaPhial] = useState<SwitchAxePhialType>()
+
+  // ranged
+  const [dangoMarksman, setDangoMarksman] = useState(false)
+  const [dangoTemper, setDangoTemper] = useState(false)
 
   const [miscAb, setMiscAb] = useState(0)
   const [miscAffinity, setMiscAffinity] = useState(0)
@@ -131,6 +150,9 @@ export default function Main() {
       counterstrike,
       heroics,
       powerSheathe: weaponType === 'Great Sword' && powerSheathe,
+      dragonheart,
+      resentment,
+      resuscitate,
     })
   }, [
     weaponRaw,
@@ -153,6 +175,9 @@ export default function Main() {
     heroics,
     powerSheathe,
     weaponType,
+    dragonheart,
+    resentment,
+    resuscitate,
   ])
 
   const uiElement = useMemo(() => {
@@ -192,6 +217,72 @@ export default function Main() {
     rousingRoar,
   ])
 
+  const { unroundedAverage: effectiveRaw } = useMemo(() => {
+    return calculateDamage({
+      uiRaw,
+      sharpness: weaponType === 'Ranged' ? 'Ranged' : sharpness,
+      motionValue: 100,
+      hitzoneEle: 0,
+      hitzoneRaw: 100,
+      uiElement: 0,
+      affinity,
+      criticalBoost,
+      miscRawMultiplier,
+      rawMultipliers: [
+        weaponType === 'Ranged' ? shotTypeUpSkill[shotTypeUp] : 0,
+        weaponType === 'Ranged' ? rapidFireUpSkill[rapidFireUp] : 0,
+        weaponType === 'Ranged' && dangoMarksman ? 10 : 0,
+        weaponType === 'Ranged' && dangoTemper ? 5 : 0,
+        weaponType === 'Switch Axe' && saPhial === 'Power' ? 15 : 0,
+      ],
+      brutalStrike: rampageSkill === 'brutalStrike',
+      dullingStrike: rampageSkill === 'dullingStrike',
+      elementExploit: rampageSkill === 'elementExploit',
+      mindsEye,
+    })
+  }, [
+    uiRaw,
+    weaponType,
+    sharpness,
+    affinity,
+    criticalBoost,
+    miscRawMultiplier,
+    rampageSkill,
+    shotTypeUp,
+    rapidFireUp,
+    mindsEye,
+    saPhial,
+    dangoMarksman,
+    dangoTemper,
+  ])
+
+  const { unroundedAverage: effectiveElement } = useMemo(() => {
+    return calculateDamage({
+      uiRaw: 0,
+      uiElement,
+      sharpness: weaponType === 'Ranged' ? 'Ranged' : sharpness,
+      motionValue: 0,
+      hitzoneEle: 100,
+      hitzoneRaw: 0,
+      affinity,
+      criticalElement,
+      miscEleMultiplier,
+      eleMultipliers: [
+        weaponType === 'Ranged' ? rapidFireUpSkill[rapidFireUp] : 0,
+        weaponType === 'Switch Axe' && saPhial === 'Element' ? 45 : 0,
+      ],
+    })
+  }, [
+    weaponType,
+    sharpness,
+    uiElement,
+    affinity,
+    criticalElement,
+    miscEleMultiplier,
+    rapidFireUp,
+    saPhial,
+  ])
+
   const {
     average,
     hit,
@@ -221,6 +312,8 @@ export default function Main() {
       rawMultipliers: [
         weaponType === 'Ranged' ? shotTypeUpSkill[shotTypeUp] : 0,
         weaponType === 'Ranged' ? rapidFireUpSkill[rapidFireUp] : 0,
+        weaponType === 'Ranged' && dangoMarksman ? 10 : 0,
+        weaponType === 'Ranged' && dangoTemper ? 5 : 0,
         weaponType === 'Switch Axe' && saPhial === 'Power' ? 15 : 0,
       ],
       miscEleMultiplier,
@@ -251,6 +344,8 @@ export default function Main() {
     rapidFireUp,
     mindsEye,
     saPhial,
+    dangoMarksman,
+    dangoTemper,
   ])
 
   return (
@@ -411,6 +506,9 @@ export default function Main() {
         />
         {renderCounterstrike}
         {renderHeroics}
+        {renderDragonheart}
+        {renderResentment}
+        {renderResuscitate}
       </Box>
       <Box header="Buffs">
         <Checkbox
@@ -492,6 +590,22 @@ export default function Main() {
             />
           </>
         )}
+        {weaponType === 'Ranged' && (
+          <>
+            <div style={{ height: '8px' }} />
+            <h4>{'Ranged'}</h4>
+            <Checkbox
+              label="Dango Marksman"
+              value={dangoMarksman}
+              onChangeValue={setDangoMarksman}
+            />
+            <Checkbox
+              label="Dango Temper"
+              value={dangoTemper}
+              onChangeValue={setDangoTemper}
+            />
+          </>
+        )}
       </Box>
       <Box header="Misc">
         <NumberInput
@@ -552,19 +666,25 @@ export default function Main() {
         <NumberInput label="Raw" value={toFixed(uiRaw)} disabled />
         <NumberInput label="Element" value={toFixed(uiElement)} disabled />
         <NumberInput label="Affinity (%)" value={affinity} disabled />
-        {/* <NumberInput label="Effective Raw" value={toFixed(uiRaw)} disabled />
+        <h4 style={{ marginBottom: '6px' }}>Calculated</h4>
+        <NumberInput
+          label="Effective Raw"
+          note="assumes hitzone >= 45"
+          value={toFixed(effectiveRaw, 2)}
+          disabled
+        />
         <NumberInput
           label="Effective Element"
-          value={toFixed(uiElement)}
+          value={toFixed(effectiveElement, 2)}
           disabled
-        /> */}
+        />
       </Box>
       <Box header="Damage">
         <h4>
           <strong>Average</strong>
         </h4>
         <NumberInput bold value={toFixed(average)} disabled />
-        <div style={{ height: '8px' }} />
+        <div style={{ height: '6px' }} />
         <h4>Rounded Totals</h4>
         <div className="row">
           <NumberInput label="Hit" value={toFixed(hit)} disabled />

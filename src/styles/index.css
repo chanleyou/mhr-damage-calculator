@@ -77,13 +77,17 @@ body {
 }
 
 label.note {
-  margin-top: 2px;
   font-size: 12px;
   font-style: oblique;
 }
 
-.box h1 {
-  margin-bottom: 8px;
+.dropdown label.note,
+.number-input label.note {
+  margin-top: 2px;
+}
+
+.box p.subheader {
+  font-size: 14px;
 }
 
 .box h4 {

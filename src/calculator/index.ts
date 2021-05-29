@@ -6,12 +6,15 @@ import {
   criticalBoostSkill,
   criticalElementSkill,
   demondrugTypes,
+  dragonheartSkill,
   dullingStrikeSharpnessList,
   elementalAttackSkill,
   heroicsSkill,
   mindsEyeSkill,
   offensiveGuardSkill,
   peakPerformanceSkill,
+  resentmentSkill,
+  resuscitateSkill,
   Sharpness,
   sharpnessElementMultiplier,
   sharpnessRawMultiplier,
@@ -25,7 +28,7 @@ function mPercentage(n: number) {
   return percentage(100 + n)
 }
 
-function calculateWeightedAverage(
+export function calculateWeightedAverage(
   arr: ([number, number] | undefined)[],
   defaultValue: number
 ) {
@@ -60,6 +63,9 @@ export function calculateUIRaw({
   counterstrike = 0,
   heroics = 0,
   powerSheathe,
+  dragonheart = 0,
+  resuscitate = 0,
+  resentment = 0,
 }: {
   weaponRaw: number
   sharpness: Sharpness
@@ -80,6 +86,9 @@ export function calculateUIRaw({
   counterstrike?: number
   heroics?: number
   powerSheathe?: boolean
+  dragonheart?: number
+  resuscitate?: number
+  resentment?: number
 }) {
   const percentageRaw = [
     attackBoostSkill[attackBoost][0],
@@ -90,6 +99,7 @@ export function calculateUIRaw({
     heroicsSkill[heroics],
     powerSheathe ? 10 : 0,
     powerDrum ? 5 : 0,
+    dragonheartSkill[dragonheart],
     rawModifierPercentage,
   ].reduce((raw, b) => raw * mPercentage(b), weaponRaw)
 
@@ -104,6 +114,8 @@ export function calculateUIRaw({
     demondrugTypes[demondrug] +
     peakPerformanceSkill[peakPerformance] +
     counterstrikeSkill[counterstrike] +
+    resuscitateSkill[resuscitate] +
+    resentmentSkill[resentment] +
     rawFlatBonus
 
   return Math.floor(percentageRaw + flatBonuses + 0.1)
@@ -313,8 +325,23 @@ export function calculateDamage({
     hit
   )
 
+  const unroundedAverage = calculateWeightedAverage(
+    [
+      [positiveAffinity, rawCrit + eleCrit],
+      [negativeAffinity, negativeRawCrit + eleHit],
+      [brutalStrikeAffinity, brutalStrikeRawCrit + eleHit],
+      [dullingStrikeHitChance, dullingStrikeRawHit + eleHit],
+      [dullingStrikeCritChance, dullingStrikeRawCrit + eleCrit],
+      [dullingStrikeNegativeCritChance, dullingStrikeNegativeRawCrit + eleHit],
+    ],
+    rawHit + eleHit
+  )
+
+  console.log(unroundedAverage)
+
   return {
     average,
+    unroundedAverage,
     hit,
     crit: affinity >= 0 ? crit : negativeCrit,
     rawHit,

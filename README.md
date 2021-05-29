@@ -1,12 +1,18 @@
 ## Changelog
 
+### 2021-05-29
+
+- Added Dragonheart, Resentment and Resuscitate
+- Added Dango Marksman and Dango Temper
+- Added Effective Raw and Effective Element calculations
+
 ### 2021-05-22
 
-- Add Mind's Eye, SA Power and Element Phial
+- Added Mind's Eye, SA Power and Element Phial
 
 ### 2021-05-18
 
-- Fix Power Sheathe & Bludgeoner buffs staying even if weapon is wrong type
+- Fixed Power Sheathe & Bludgeoner buffs staying even if weapon is wrong type
 
 ### 2021-05-17
 
