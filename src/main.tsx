@@ -271,6 +271,7 @@ export default function Main() {
         weaponType === 'Ranged' ? rapidFireUpSkill[rapidFireUp] : 0,
         weaponType === 'Switch Axe' && saPhial === 'Element' ? 45 : 0,
       ],
+      elementExploit: rampageSkill === 'elementExploit',
     })
   }, [
     weaponType,
@@ -280,6 +281,7 @@ export default function Main() {
     criticalElement,
     miscEleMultiplier,
     rapidFireUp,
+    rampageSkill,
     saPhial,
   ])
 
@@ -669,7 +671,6 @@ export default function Main() {
         <h4 style={{ marginBottom: '6px' }}>Calculated</h4>
         <NumberInput
           label="Effective Raw"
-          note="assumes hitzone >= 45"
           value={toFixed(effectiveRaw, 2)}
           disabled
         />
