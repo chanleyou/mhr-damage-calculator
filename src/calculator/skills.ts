@@ -94,7 +94,7 @@ export const offensiveGuardSkill = [0, 5, 10, 15] as const
 
 export const shotTypeUpSkill = [0, 5, 10, 20] as const
 
-export const rapidFireUpSkill = [0, 50, 10, 12] as const
+export const rapidFireUpSkill = [0, 5, 10, 20] as const
 
 export const dullingStrikeSharpnessList: Sharpness[] = [
   'Red',

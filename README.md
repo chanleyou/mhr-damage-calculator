@@ -1,5 +1,9 @@
 ## Changelog
 
+### 2022-06-17
+
+- Fix wrong value with Rapid Fire Up
+
 ### 2021-05-29
 
 - Added Dragonheart, Resentment and Resuscitate
