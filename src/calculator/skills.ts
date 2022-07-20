@@ -9,11 +9,13 @@ export type Sharpness =
   | 'Green'
   | 'Blue'
   | 'White'
+  | 'Purple'
   | 'Ranged'
 
 export type SwitchAxePhialType = 'Other' | 'Power' | 'Element'
 
 export const sharpnessRawMultiplier: { [K in Sharpness]: number } = {
+  Purple: 1.39,
   White: 1.32,
   Blue: 1.2,
   Green: 1.05,
@@ -24,6 +26,7 @@ export const sharpnessRawMultiplier: { [K in Sharpness]: number } = {
 } as const
 
 export const sharpnessElementMultiplier: { [K in Sharpness]: number } = {
+  Purple: 1.25,
   White: 1.15,
   Blue: 1.0625,
   Green: 1,
