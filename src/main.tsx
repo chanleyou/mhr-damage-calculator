@@ -44,7 +44,7 @@ export default function Main() {
   const [weaponRaw, setWeaponRaw] = useState(200)
   const [weaponElement, setWeaponElement] = useState(0)
   const [weaponAffinity, setWeaponAffinity] = useState(0)
-  const [sharpness, setSharpness] = useState<Sharpness>('White')
+  const [sharpness, setSharpness] = useState<Sharpness>('Purple')
 
   // rampage skills
   const [rampageSkill, setRampageSkill] =
